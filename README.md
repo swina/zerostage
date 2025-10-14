@@ -25,6 +25,8 @@ It has been designed in order to control your session during a live performance 
 - Track device variations (change the variation of the device if present, or add new)
 - Track device macros (change the macros of the device is present, or randomize)
 
+**Devices selector and Parameters Randomize has to be completed and will be available in the next release**
+
 Using the powerful OSC protocol (Open Sound Control) you can control remotely your Ableton session without the need of tedious MIDI mapping. 
 
 Using the web technologies you can have a touch controller with no cost. Compatible with any touch device (iOS/Android). 

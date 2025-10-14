@@ -150,6 +150,22 @@ function get_session() {
     post("✅ Sent all track/device/parameter data as OSC\n");
 }
 
+function getParam(d){
+    var pApi = new LiveAPI("id " + d);
+    
+        var pName = safeGetString(pApi, "name");
+        var pVal = safeGetString(pApi, "value");
+        var pMin = safeGetString(pApi, "min");
+        var pMax = safeGetString(pApi, "max");
+        var pid = pApi.id;
+
+        // send OSC message
+        var address = "/receive/refresh/param"// +(t-1);// + "/" + d + "/" + p;
+        var args = [d,pVal];
+        sendOSC(address, args);
+    
+}
+
 function colorToHex(intColor) {
     intColor = parseInt(intColor);
     var hex = intColor.toString(16).toUpperCase();

@@ -337,7 +337,7 @@
             "target": "",
             "bypass": false,
             "onCreate": "",
-            "onValue": "console.log ( getVar(this,\"device\"))\nsetVar(\"button_\" + get(\"current_track\") , \"lastVariation\" , value )\nsend(\"/send/variation/\" + getVar(this,\"device\"),value)"
+            "onValue": "\nsetVar(\"button_\" + get(\"current_track\") , \"lastVariation\" , value )\nsend(\"/send/variation/\" + getVar(this,\"device\"),value)\nlet params = getVar(\"params_\" + get(\"current_track\"),\"params\")\nparams.forEach ( p => {\n  send(\"/send/refresh/param/\" + parseInt(p[3]),1)\n})"
           },
           {
             "type": "text",
@@ -6410,6 +6410,28 @@
           }
         ],
         "tabs": []
+      },
+      {
+        "type": "script",
+        "lock": false,
+        "id": "script_refresh_param",
+        "comments": "",
+        "value": "",
+        "default": "",
+        "linkId": "",
+        "address": "/receive/refresh/param",
+        "preArgs": "",
+        "typeTags": "",
+        "decimals": 2,
+        "target": "",
+        "ignoreDefaults": false,
+        "bypass": false,
+        "onCreate": "",
+        "onValue": "for ( var i = 1; i < 17 ; i++ ){\n  let target = \"fader_param_\" + i\n  let id = getVar(target,\"device\")\n  if ( parseInt(id) == parseInt(value[0]) ){\n    set(target,parseFloat(value[1]))\n  }\n}\n",
+        "onKeyboard": "",
+        "keyBinding": "",
+        "keyRepeat": true,
+        "keyType": "keydown"
       }
     ],
     "tabs": []

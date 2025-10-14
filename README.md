@@ -47,7 +47,7 @@ Using the web technologies you can have a touch controller with no cost. Compati
 
 ![zerostage AbletonLive](https://res.cloudinary.com/moodgiver/image/upload/v1760460377/ZerostagEM4l_nbvu3r.png)
 
-Copy `sessionData.js` in the same folder of `ZerostagE.amd` file
+Copy `sessionData.js` in the same folder of `ZeroStage-01.amxd` file
 
 ### Open Stage Control
 - send: Host IP : Port (receive)

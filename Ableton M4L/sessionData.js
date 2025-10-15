@@ -150,9 +150,14 @@ function get_session() {
     post("✅ Sent all track/device/parameter data as OSC\n");
 }
 
-function getParam(d){
-    var pApi = new LiveAPI("id " + d);
-    
+function getParams(track,index){
+    post ( track , index )
+    var devPath = new LiveAPI("live_set tracks " + track + " devices " + index);
+    var paramCount = devPath.getcount("parameters");
+    post ( paramCount )
+    for (var p = 0; p < paramCount; p++) {
+        // var paramPath = devPath + " parameters " + p;
+        var pApi = new LiveAPI("live_set tracks " + track + " devices " + index + " parameters " + p );
         var pName = safeGetString(pApi, "name");
         var pVal = safeGetString(pApi, "value");
         var pMin = safeGetString(pApi, "min");
@@ -160,10 +165,58 @@ function getParam(d){
         var pid = pApi.id;
 
         // send OSC message
-        var address = "/receive/refresh/param"// +(t-1);// + "/" + d + "/" + p;
-        var args = [d,pVal];
+        var address = "/receive/refresh/param"// +track;// + "/" + d + "/" + p;
+        var args = [pid,pVal];
         sendOSC(address, args);
+    }
+}
+
+function getParam(d){
+    var pApi = new LiveAPI("id " + d);
     
+    var pName = safeGetString(pApi, "name");
+    var pVal = safeGetString(pApi, "value");
+    var pMin = safeGetString(pApi, "min");
+    var pMax = safeGetString(pApi, "max");
+    var pid = pApi.id;
+
+    var liveApi = new LiveAPI(liveCallback, pApi);
+    // request initial value
+    try {
+        // some LiveAPI builds support "value" property subscription this way:
+        liveApi.property = "value";
+    } catch (e) {
+        // fallback: call get to fetch initial value
+        var v = liveApi.get("value");
+        if (v && v.length>0) outlet(0, v[0]);
+    }
+
+    // send OSC message
+    var address = "/receive/refresh/param"// +(t-1);// + "/" + d + "/" + p;
+    var args = [d,pVal];
+    sendOSC(address, args);
+    
+}
+
+// callback from LiveAPI
+function liveCallback() {
+    var args = arrayfromargs(arguments);
+    // args will contain messages like: "value", 0.5  OR other notifications
+    post("liveCallback:", args, "\n");
+    // if first token is "value" forward the numeric
+    if (args[0] === "value" && args.length > 1) {
+        outlet(0, parseFloat(args[1]));
+    } else {
+        outlet(0, args);
+    }
+}
+
+// helper to free observer
+function free() {
+    if (liveApi) {
+        try { liveApi.id = null; } catch(e){}
+        liveApi = null;
+    }
 }
 
 function colorToHex(intColor) {

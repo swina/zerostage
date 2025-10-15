@@ -69,6 +69,10 @@ module.exports = {
             return { address, args, host, port }
         }
 
+        if ( address.includes("/request/refresh/params") ){
+            return { address, args, host, port }
+        }
+
      },
     oscOutFilter:function(data){
         // Filter outgoing osc messages
@@ -90,6 +94,10 @@ module.exports = {
         if ( address.includes('/send/refresh/param/') ){
             return { address, args, host,  port }
         }
+        if ( address.includes("/randomize/") ){
+            return { address, args, host, port }
+        }
+        
     },
 
     unload: function(){

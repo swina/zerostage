@@ -2904,7 +2904,7 @@
                     "value": "",
                     "default": "",
                     "linkId": "",
-                    "address": "/send/param/VAR{device}",
+                    "address": "auto",
                     "preArgs": "",
                     "typeTags": "",
                     "decimals": 2,
@@ -2912,7 +2912,7 @@
                     "ignoreDefaults": false,
                     "bypass": false,
                     "onCreate": "",
-                    "onValue": "console.log ( getVar(this,\"device\"))",
+                    "onValue": "send(\"/send/param/\" + getVar(this,\"device\"),value)",
                     "onTouch": ""
                   },
                   {
@@ -2961,7 +2961,7 @@
                     "value": "",
                     "default": "",
                     "linkId": "",
-                    "address": "/send/param/VAR{device}",
+                    "address": "auto",
                     "preArgs": "",
                     "typeTags": "",
                     "decimals": 2,
@@ -2969,7 +2969,7 @@
                     "ignoreDefaults": false,
                     "bypass": false,
                     "onCreate": "",
-                    "onValue": "",
+                    "onValue": "send(\"/send/param/\" + getVar(this,\"device\"),value)",
                     "onTouch": ""
                   },
                   {

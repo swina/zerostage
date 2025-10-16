@@ -46,11 +46,11 @@ module.exports = {
         if ( address.includes("/track/device/param/") ){
             let addr = address.split('/')
             let device = {
-                tr: addr[4],
-                nr: args[0].value,
-                id: args[1].value,
-                variations: args[2].value,
-                name: args[3].value,
+                tr: addr[4],    //track no
+                nr: args[0].value, //device no
+                id: args[1].value, //device id
+                variations: args[2].value, //variations
+                name: args[3].value, //name
                 value: args[4].value,
                 min: args[5].value,
                 max: args[6].value

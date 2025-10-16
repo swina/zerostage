@@ -94,9 +94,18 @@ function get_session() {
             } else {
                 var devVariations = 0;
             }
-            sendOSC("/track/device/" + t , [d, devName,devVariations,devMacros,devApi.id]);
-
+            
             var paramCount = devApi.getcount("parameters");
+            /**
+             * t = track no.
+             * d = device no.
+             * devName = device name
+             * devVariations = device variations
+             * devMacros = device macros
+             * devApi.id = device id
+             */
+            sendOSC("/track/device/" + t , [d, devName,devVariations,devMacros,devApi.id,paramCount]);
+            
             for (var p = 0; p < paramCount; p++) {
                 var paramPath = devPath + " parameters " + p;
                 var pApi = new LiveAPI(paramPath);
@@ -109,7 +118,20 @@ function get_session() {
 
                 // send OSC message
                 var address = "/track/device/param/" +t;// + "/" + d + "/" + p;
-                var args = [d,devVariations,p,pid, pName, pVal, pMin, pMax];
+                var args = [d,devVariations,p,pid, pName, pVal, pMin, pMax,paramCount];
+                /**
+                 * address = OSC address
+                 * t = track no.
+                 * args =
+                 *  d = device no (starting from 0)
+                 *  devVariations = device variations
+                 *  p = parameter no (starting from 0)
+                 *  pid = parameter id
+                 *  pName = parameter name
+                 *  pVal = parameter value
+                 *  pMin = parameter min value
+                 *  pMax = parameter max value
+                 */
                 sendOSC(address, args);
             }
         }

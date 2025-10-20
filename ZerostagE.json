@@ -39,7 +39,7 @@
     "target": "",
     "ignoreDefaults": false,
     "bypass": true,
-    "onCreate": "send(\"/reload\",1)",
+    "onCreate": "send(\"/reload\",1)\nset(\"modal_loading\",1)",
     "onValue": "",
     "onTouch": "",
     "onPreload": "",
@@ -149,7 +149,7 @@
         "ignoreDefaults": false,
         "bypass": false,
         "onCreate": "",
-        "onValue": "let target =\"button_\" + (value[0]+1)\nlet vol = \"volume_\" + (value[0]+1)\nlet data = {\n  track: value[0]+1,\n  name: value[1].replace('\"','').replace('\"',''),\n  color: value[2],\n  volume: parseFloat(value[5]),\n  volumeId: parseInt(value[4])\n}\nsetVar(target,\"data\",data)\nsetVar(target,\"color\",data.color)\nsetVar(target,\"label\",data.name)\nsetVar(vol,\"color\",data.color)\nset(vol,data.volume)\nsetVar(vol,\"device\",data.volumeId)",
+        "onValue": "let target =\"button_\" + (value[0]+1)\nlet vol = \"volume_\" + (value[0]+1)\nlet data = {\n  track: value[0]+1,\n  name: value[1].replace('\"','').replace('\"',''),\n  color: value[2],\n  volume: parseFloat(value[5]),\n  volumeId: parseInt(value[4])\n}\nsetVar(target,\"data\",data)\nsetVar(target,\"color\",data.color)\nsetVar(target,\"label\",data.name)\nsetVar(vol,\"color\",data.color)\nset(vol,data.volume)\nsetVar(vol,\"device\",data.volumeId)\nsetVar(\"menu_devices\",\"color\",data.color)",
         "onKeyboard": "",
         "keyBinding": "",
         "keyRepeat": true,
@@ -191,7 +191,7 @@
         "target": "",
         "bypass": false,
         "onCreate": "",
-        "onValue": "set(this,\"Tracks : \" + value[0])\nset(\"song\",\"Song : \" + value[1])"
+        "onValue": "set(this,\"Tracks : \" + value[0])\nset(\"song\",\"Song : \" + value[1])\n"
       },
       {
         "type": "script",
@@ -331,13 +331,13 @@
             "value": 1,
             "default": "",
             "linkId": "",
-            "address": "/send/variation/VAR{device}",
+            "address": "auto",
             "preArgs": "",
             "decimals": 0,
             "target": "",
             "bypass": false,
             "onCreate": "",
-            "onValue": "setVar(\"button_\" + get(\"current_track\") , \"lastVariation\" , value )\nsend(\"/send/variation/\" + getVar(this,\"device\"),value)\nlet params = getVar(\"params_\" + get(\"current_track\"),\"params\")\nparams.forEach ( p => {\n  send(\"/send/refresh/param/\" + parseInt(p[3]),1)\n})"
+            "onValue": "setVar(\"button_\" + get(\"current_track\") , \"lastVariation\" , value )\nset(\"button_track_device_params\",1)\n//send(\"/send/variation/\" + getVar(this,\"device\"),value)\n// let params = getVar(\"params_\" + get(\"current_track\"),\"params\")\n// params.forEach ( p => {\n//   send(\"/send/refresh/param/\" + parseInt(p[3]),1)\n// })"
           },
           {
             "type": "text",
@@ -421,7 +421,7 @@
             "ignoreDefaults": false,
             "bypass": false,
             "onCreate": "",
-            "onValue": "let current = get(\"current_variation\")\nif ( value && current > 1 ){\n  let newValue = current - 1\n  set(\"current_variation\",newValue)\n}"
+            "onValue": "let current = get(\"current_variation\")\nif ( value && current > 1 ){\n  let newValue = current - 1\n  set(\"current_variation\",newValue)\n  set(\"button_send_variation\",1)\n}"
           },
           {
             "type": "button",
@@ -466,8 +466,8 @@
             "target": "",
             "ignoreDefaults": false,
             "bypass": false,
-            "onCreate": "",
-            "onValue": "let current = get(\"current_variation\")\nlet total = get(\"device_variations\")\nif ( value && current < total ){\n  let newValue = current + 1\n  set(\"current_variation\",newValue)\n}"
+            "onCreate": "set(this,'')",
+            "onValue": "let current = get(\"current_variation\")\nlet total = get(\"device_variations\")\nif ( value && current < total ){\n  let newValue = current + 1\n  set(\"current_variation\",newValue)\n  set(\"button_send_variation\",1)\n}"
           },
           {
             "type": "button",
@@ -640,7 +640,7 @@
             "target": "",
             "bypass": false,
             "onCreate": "",
-            "onValue": ""
+            "onValue": "// set(\"button_track_device_params\",1)\n// set(\"button_track_device_params\",0)\n// set(\"button_track_device_params\",1)\nlet track = get(\"current_track\")\nlet deviceIndex = get(\"current_device_index\")\nlet device = \"devices_\" + track\nlet devices = getVar(device,\"devices\")\nsetVar(\"button_next_variation\",\"device\",devices[deviceIndex][4])\nsetVar(\"button_prev_variation\",\"device\",devices[deviceIndex][4])\nsetVar(\"button_send_variation\",\"device\",devices[deviceIndex][4])"
           }
         ],
         "tabs": []
@@ -2534,7 +2534,7 @@
                     "ignoreDefaults": false,
                     "bypass": false,
                     "onCreate": "setVar(this,\"params\",[])\nsetVar(this,\"lastVariation\",1)\nsetVar(this,\"xypad\",{xDevice:{name:'',id:0},yDevice:{name:'',id:0}})",
-                    "onValue": "let index = getProp(this,\"id\").replace('button_','')\nlet target = \"params_\" + index\nlet params = getVar(target,\"params\")\nlet visible_macros = getVar(\"devices_\" + index,\"devices\")[0][4]\nlet n = 0;\nparams.forEach( (p,i) => {\n  if ( !p[4].includes(\"Device On\") ){\n    if ( n <= visible_macros ){\n      n++;\n      set(\"param_lbl_\" + n,p[4].replace(' ','\\n').replace('\"','').replace('\"',''))\n      set(\"fader_param_\" + n,parseFloat(p[5]))\n      setVar(\"fader_param_\" + n,\"range\", {min:parseFloat(p[6]),max:parseFloat(p[7])})\n      setVar(\"fader_param_\" + n,\"device\",parseInt(p[3]))\n    }\n  }\n})\n\n//set current track indicator\nset(\"current_track\",index)\n\n\nlet device = \"devices_\" + index\nlet devices = getVar(device,\"devices\")\n\n//set the current device the first of the track\nset(\"current_device\",devices[0][1].replace('\"','').replace('\"',''))\nsetVar(\"current_device\",\"color\",getVar(this,\"color\"))\n\n\nsetVar(\"current_track\",\"color\",getVar(this,\"color\"))\n//set variation_count to device_variations \nset(\"device_variations\",parseInt(devices[0][2]))\n//set device id to current_variation\nsetVar(\"current_variation\",\"device\",parseInt(devices[0][4]))\n//get the last variation selected for the current device\nset(\"current_variation\",getVar(this,\"lastVariation\"))\n\n//Assign device id to randomize button\nsetVar(\"button_randomize\",\"device\",parseInt(devices[0][4]))\n\nlet xypad = getVar(this,\"xypad\")\nif ( xypad.xDevice.id && xypad.yDevice.id ){\n  setVar(\"xy_1\",\"xDevice\",xypad.xDevice.id)\n  setVar(\"xy_1\",\"yDevice\",xypad.yDevice.id)\n  set(\"lbl_x_param_name\",xypad.xDevice.name)\n  set(\"lbl_y_param_name\",xypad.yDevice.name)\n} else {\n  setVar(\"xy_1\",\"xDevice\",0)\n  setVar(\"xy_1\",\"yDevice\",0)\n  set(\"lbl_x_param_name\",\"\")\n  set(\"lbl_y_param_name\",\"\")\n}\n\nconsole.log ( devices )"
+                    "onValue": "let index = getProp(this,\"id\").replace('button_','')\nlet target = \"params_\" + index\nlet params = getVar(target,\"params\")\nlet visible_macros = getVar(\"devices_\" + index,\"devices\")[0][4]\nlet n = 0;\nparams.forEach( (p,i) => {\n  if ( !p[4].includes(\"Device On\") ){\n    if ( n <= visible_macros ){\n      n++;\n      set(\"param_lbl_\" + n,p[4].replace(' ','\\n').replace('\"','').replace('\"',''))\n      set(\"fader_param_\" + n,parseFloat(p[5]))\n      setVar(\"fader_param_\" + n,\"range\", {min:parseFloat(p[6]),max:parseFloat(p[7])})\n      setVar(\"fader_param_\" + n,\"device\",parseInt(p[3]))\n    }\n  }\n})\n\n//set current track indicator\nset(\"current_track\",index)\n\n\nlet device = \"devices_\" + index\nlet devices = getVar(device,\"devices\")\n\n//set the current device the first of the track\nset(\"current_device\",devices[0][1].replace('\"','').replace('\"',''))\nsetVar(\"current_device\",\"color\",getVar(this,\"color\"))\n\n\nsetVar(\"current_track\",\"color\",getVar(this,\"color\"))\n//set variation_count to device_variations \nset(\"device_variations\",parseInt(devices[0][2]))\n//set device id to current_variation\nsetVar(\"current_variation\",\"device\",parseInt(devices[0][4]))\n//get the last variation selected for the current device\nset(\"current_variation\",getVar(this,\"lastVariation\"))\n\n//Assign device id to randomize button\nsetVar(\"button_randomize\",\"device\",parseInt(devices[0][4]))\n\nlet xypad = getVar(this,\"xypad\")\nif ( xypad.xDevice.id && xypad.yDevice.id ){\n  setVar(\"xy_1\",\"xDevice\",xypad.xDevice.id)\n  setVar(\"xy_1\",\"yDevice\",xypad.yDevice.id)\n  set(\"lbl_x_param_name\",xypad.xDevice.name)\n  set(\"lbl_y_param_name\",xypad.yDevice.name)\n} else {\n  setVar(\"xy_1\",\"xDevice\",0)\n  setVar(\"xy_1\",\"yDevice\",0)\n  set(\"lbl_x_param_name\",\"\")\n  set(\"lbl_y_param_name\",\"\")\n}\nsetVar(\"button_track_devices\",\"devices\",devices)\n\nlet devs = { \"labels\" : [],\"values\" : [] }\nif ( devices.length > 1 ){\n  devices.map ( (d,index) => {\n    devs.labels.push (d[1].replace('\"','').replace('\"',''))\n    devs.values.push (index)\n  })\n  setVar(\"menu_devices\",\"visible\",true)\n} else {\n  setVar(\"menu_devices\",\"visible\",false)\n}\n// setVar(\"dropdown_devices\",\"options\",devs)\nsetVar(\"menu_devices\",\"options\",devs)\nsetVar(\"menu_devices\",\"color\",getVar(this,\"color\"))\nset(\"current_device_index\",0)\n//send(\"/send/track/device/params/\" + get(\"current_track\"),get(\"current_device)\"))"
                   },
                   {
                     "type": "button",
@@ -2580,7 +2580,7 @@
                     "ignoreDefaults": false,
                     "bypass": false,
                     "onCreate": "setVar(this,\"params\",[])\nsetVar(this,\"lastVariation\",1)\nsetVar(this,\"xypad\",{xDevice:{name:'',id:0},yDevice:{name:'',id:0}})",
-                    "onValue": "let index = getProp(this,\"id\").replace('button_','')\nlet target = \"params_\" + index\nlet params = getVar(target,\"params\")\nlet visible_macros = getVar(\"devices_\" + index,\"devices\")[0][4]\nlet n = 0;\nparams.forEach( (p,i) => {\n  if ( !p[4].includes(\"Device On\") ){\n    if ( n <= visible_macros ){\n      n++;\n      set(\"param_lbl_\" + n,p[4].replace(' ','\\n').replace('\"','').replace('\"',''))\n      set(\"fader_param_\" + n,parseFloat(p[5]))\n      setVar(\"fader_param_\" + n,\"range\", {min:parseFloat(p[6]),max:parseFloat(p[7])})\n      setVar(\"fader_param_\" + n,\"device\",parseInt(p[3]))\n    }\n  }\n})\n\n//set current track indicator\nset(\"current_track\",index)\n\n\nlet device = \"devices_\" + index\nlet devices = getVar(device,\"devices\")\n\n//set the current device the first of the track\nset(\"current_device\",devices[0][1].replace('\"','').replace('\"',''))\nsetVar(\"current_device\",\"color\",getVar(this,\"color\"))\n\n\nsetVar(\"current_track\",\"color\",getVar(this,\"color\"))\n//set variation_count to device_variations \nset(\"device_variations\",parseInt(devices[0][2]))\n//set device id to current_variation\nsetVar(\"current_variation\",\"device\",parseInt(devices[0][4]))\n//get the last variation selected for the current device\nset(\"current_variation\",getVar(this,\"lastVariation\"))\n\n//Assign device id to randomize button\nsetVar(\"button_randomize\",\"device\",parseInt(devices[0][4]))\n\nlet xypad = getVar(this,\"xypad\")\nif ( xypad.xDevice.id && xypad.yDevice.id ){\n  setVar(\"xy_1\",\"xDevice\",xypad.xDevice.id)\n  setVar(\"xy_1\",\"yDevice\",xypad.yDevice.id)\n  set(\"lbl_x_param_name\",xypad.xDevice.name)\n  set(\"lbl_y_param_name\",xypad.yDevice.name)\n} else {\n  setVar(\"xy_1\",\"xDevice\",0)\n  setVar(\"xy_1\",\"yDevice\",0)\n  set(\"lbl_x_param_name\",\"\")\n  set(\"lbl_y_param_name\",\"\")\n}\n\nconsole.log ( devices )"
+                    "onValue": "let index = getProp(this,\"id\").replace('button_','')\nlet target = \"params_\" + index\nlet params = getVar(target,\"params\")\nlet visible_macros = getVar(\"devices_\" + index,\"devices\")[0][4]\nlet n = 0;\nparams.forEach( (p,i) => {\n  if ( !p[4].includes(\"Device On\") ){\n    if ( n <= visible_macros ){\n      n++;\n      set(\"param_lbl_\" + n,p[4].replace(' ','\\n').replace('\"','').replace('\"',''))\n      set(\"fader_param_\" + n,parseFloat(p[5]))\n      setVar(\"fader_param_\" + n,\"range\", {min:parseFloat(p[6]),max:parseFloat(p[7])})\n      setVar(\"fader_param_\" + n,\"device\",parseInt(p[3]))\n    }\n  }\n})\n\n//set current track indicator\nset(\"current_track\",index)\n\n\nlet device = \"devices_\" + index\nlet devices = getVar(device,\"devices\")\n\n//set the current device the first of the track\nset(\"current_device\",devices[0][1].replace('\"','').replace('\"',''))\nsetVar(\"current_device\",\"color\",getVar(this,\"color\"))\n\n\nsetVar(\"current_track\",\"color\",getVar(this,\"color\"))\n//set variation_count to device_variations \nset(\"device_variations\",parseInt(devices[0][2]))\n//set device id to current_variation\nsetVar(\"current_variation\",\"device\",parseInt(devices[0][4]))\n//get the last variation selected for the current device\nset(\"current_variation\",getVar(this,\"lastVariation\"))\n\n//Assign device id to randomize button\nsetVar(\"button_randomize\",\"device\",parseInt(devices[0][4]))\n\nlet xypad = getVar(this,\"xypad\")\nif ( xypad.xDevice.id && xypad.yDevice.id ){\n  setVar(\"xy_1\",\"xDevice\",xypad.xDevice.id)\n  setVar(\"xy_1\",\"yDevice\",xypad.yDevice.id)\n  set(\"lbl_x_param_name\",xypad.xDevice.name)\n  set(\"lbl_y_param_name\",xypad.yDevice.name)\n} else {\n  setVar(\"xy_1\",\"xDevice\",0)\n  setVar(\"xy_1\",\"yDevice\",0)\n  set(\"lbl_x_param_name\",\"\")\n  set(\"lbl_y_param_name\",\"\")\n}\nsetVar(\"button_track_devices\",\"devices\",devices)\n\nlet devs = { \"labels\" : [],\"values\" : [] }\nif ( devices.length > 1 ){\n  devices.map ( (d,index) => {\n    devs.labels.push (d[1].replace('\"','').replace('\"',''))\n    devs.values.push (index)\n  })\n  setVar(\"menu_devices\",\"visible\",true)\n} else {\n  setVar(\"menu_devices\",\"visible\",false)\n}\n// setVar(\"dropdown_devices\",\"options\",devs)\nsetVar(\"menu_devices\",\"options\",devs)\nsetVar(\"menu_devices\",\"color\",getVar(this,\"color\"))\nset(\"current_device_index\",0)"
                   },
                   {
                     "type": "button",
@@ -2626,7 +2626,7 @@
                     "ignoreDefaults": false,
                     "bypass": false,
                     "onCreate": "setVar(this,\"params\",[])\nsetVar(this,\"lastVariation\",1)\nsetVar(this,\"xypad\",{xDevice:{name:'',id:0},yDevice:{name:'',id:0}})",
-                    "onValue": "let index = getProp(this,\"id\").replace('button_','')\nlet target = \"params_\" + index\nlet params = getVar(target,\"params\")\nlet visible_macros = getVar(\"devices_\" + index,\"devices\")[0][4]\nlet n = 0;\nparams.forEach( (p,i) => {\n  if ( !p[4].includes(\"Device On\") ){\n    if ( n <= visible_macros ){\n      n++;\n      set(\"param_lbl_\" + n,p[4].replace(' ','\\n').replace('\"','').replace('\"',''))\n      set(\"fader_param_\" + n,parseFloat(p[5]))\n      setVar(\"fader_param_\" + n,\"range\", {min:parseFloat(p[6]),max:parseFloat(p[7])})\n      setVar(\"fader_param_\" + n,\"device\",parseInt(p[3]))\n    }\n  }\n})\n\n//set current track indicator\nset(\"current_track\",index)\n\n\nlet device = \"devices_\" + index\nlet devices = getVar(device,\"devices\")\n\n//set the current device the first of the track\nset(\"current_device\",devices[0][1].replace('\"','').replace('\"',''))\nsetVar(\"current_device\",\"color\",getVar(this,\"color\"))\n\n\nsetVar(\"current_track\",\"color\",getVar(this,\"color\"))\n//set variation_count to device_variations \nset(\"device_variations\",parseInt(devices[0][2]))\n//set device id to current_variation\nsetVar(\"current_variation\",\"device\",parseInt(devices[0][4]))\n//get the last variation selected for the current device\nset(\"current_variation\",getVar(this,\"lastVariation\"))\n\n//Assign device id to randomize button\nsetVar(\"button_randomize\",\"device\",parseInt(devices[0][4]))\n\nlet xypad = getVar(this,\"xypad\")\nif ( xypad.xDevice.id && xypad.yDevice.id ){\n  setVar(\"xy_1\",\"xDevice\",xypad.xDevice.id)\n  setVar(\"xy_1\",\"yDevice\",xypad.yDevice.id)\n  set(\"lbl_x_param_name\",xypad.xDevice.name)\n  set(\"lbl_y_param_name\",xypad.yDevice.name)\n} else {\n  setVar(\"xy_1\",\"xDevice\",0)\n  setVar(\"xy_1\",\"yDevice\",0)\n  set(\"lbl_x_param_name\",\"\")\n  set(\"lbl_y_param_name\",\"\")\n}\n\nconsole.log ( devices )"
+                    "onValue": "let index = getProp(this,\"id\").replace('button_','')\nlet target = \"params_\" + index\nlet params = getVar(target,\"params\")\nlet visible_macros = getVar(\"devices_\" + index,\"devices\")[0][4]\nlet n = 0;\nparams.forEach( (p,i) => {\n  if ( !p[4].includes(\"Device On\") ){\n    if ( n <= visible_macros ){\n      n++;\n      set(\"param_lbl_\" + n,p[4].replace(' ','\\n').replace('\"','').replace('\"',''))\n      set(\"fader_param_\" + n,parseFloat(p[5]))\n      setVar(\"fader_param_\" + n,\"range\", {min:parseFloat(p[6]),max:parseFloat(p[7])})\n      setVar(\"fader_param_\" + n,\"device\",parseInt(p[3]))\n    }\n  }\n})\n\n//set current track indicator\nset(\"current_track\",index)\n\n\nlet device = \"devices_\" + index\nlet devices = getVar(device,\"devices\")\n\n//set the current device the first of the track\nset(\"current_device\",devices[0][1].replace('\"','').replace('\"',''))\nsetVar(\"current_device\",\"color\",getVar(this,\"color\"))\n\n\nsetVar(\"current_track\",\"color\",getVar(this,\"color\"))\n//set variation_count to device_variations \nset(\"device_variations\",parseInt(devices[0][2]))\n//set device id to current_variation\nsetVar(\"current_variation\",\"device\",parseInt(devices[0][4]))\n//get the last variation selected for the current device\nset(\"current_variation\",getVar(this,\"lastVariation\"))\n\n//Assign device id to randomize button\nsetVar(\"button_randomize\",\"device\",parseInt(devices[0][4]))\n\nlet xypad = getVar(this,\"xypad\")\nif ( xypad.xDevice.id && xypad.yDevice.id ){\n  setVar(\"xy_1\",\"xDevice\",xypad.xDevice.id)\n  setVar(\"xy_1\",\"yDevice\",xypad.yDevice.id)\n  set(\"lbl_x_param_name\",xypad.xDevice.name)\n  set(\"lbl_y_param_name\",xypad.yDevice.name)\n} else {\n  setVar(\"xy_1\",\"xDevice\",0)\n  setVar(\"xy_1\",\"yDevice\",0)\n  set(\"lbl_x_param_name\",\"\")\n  set(\"lbl_y_param_name\",\"\")\n}\nsetVar(\"button_track_devices\",\"devices\",devices)\n\nlet devs = { \"labels\" : [],\"values\" : [] }\nif ( devices.length > 1 ){\n  devices.map ( (d,index) => {\n    devs.labels.push (d[1].replace('\"','').replace('\"',''))\n    devs.values.push (index)\n  })\n  setVar(\"menu_devices\",\"visible\",true)\n} else {\n  setVar(\"menu_devices\",\"visible\",false)\n}\n// setVar(\"dropdown_devices\",\"options\",devs)\nsetVar(\"menu_devices\",\"options\",devs)\nsetVar(\"menu_devices\",\"color\",getVar(this,\"color\"))\nset(\"current_device_index\",0)"
                   },
                   {
                     "type": "button",
@@ -2672,7 +2672,7 @@
                     "ignoreDefaults": false,
                     "bypass": false,
                     "onCreate": "setVar(this,\"params\",[])\nsetVar(this,\"lastVariation\",1)\nsetVar(this,\"xypad\",{xDevice:{name:'',id:0},yDevice:{name:'',id:0}})",
-                    "onValue": "let index = getProp(this,\"id\").replace('button_','')\nlet target = \"params_\" + index\nlet params = getVar(target,\"params\")\nlet visible_macros = getVar(\"devices_\" + index,\"devices\")[0][4]\nlet n = 0;\nparams.forEach( (p,i) => {\n  if ( !p[4].includes(\"Device On\") ){\n    if ( n <= visible_macros ){\n      n++;\n      set(\"param_lbl_\" + n,p[4].replace(' ','\\n').replace('\"','').replace('\"',''))\n      set(\"fader_param_\" + n,parseFloat(p[5]))\n      setVar(\"fader_param_\" + n,\"range\", {min:parseFloat(p[6]),max:parseFloat(p[7])})\n      setVar(\"fader_param_\" + n,\"device\",parseInt(p[3]))\n    }\n  }\n})\n\n//set current track indicator\nset(\"current_track\",index)\n\n\nlet device = \"devices_\" + index\nlet devices = getVar(device,\"devices\")\n\n//set the current device the first of the track\nset(\"current_device\",devices[0][1].replace('\"','').replace('\"',''))\nsetVar(\"current_device\",\"color\",getVar(this,\"color\"))\n\n\nsetVar(\"current_track\",\"color\",getVar(this,\"color\"))\n//set variation_count to device_variations \nset(\"device_variations\",parseInt(devices[0][2]))\n//set device id to current_variation\nsetVar(\"current_variation\",\"device\",parseInt(devices[0][4]))\n//get the last variation selected for the current device\nset(\"current_variation\",getVar(this,\"lastVariation\"))\n\n//Assign device id to randomize button\nsetVar(\"button_randomize\",\"device\",parseInt(devices[0][4]))\n\nlet xypad = getVar(this,\"xypad\")\nif ( xypad.xDevice.id && xypad.yDevice.id ){\n  setVar(\"xy_1\",\"xDevice\",xypad.xDevice.id)\n  setVar(\"xy_1\",\"yDevice\",xypad.yDevice.id)\n  set(\"lbl_x_param_name\",xypad.xDevice.name)\n  set(\"lbl_y_param_name\",xypad.yDevice.name)\n} else {\n  setVar(\"xy_1\",\"xDevice\",0)\n  setVar(\"xy_1\",\"yDevice\",0)\n  set(\"lbl_x_param_name\",\"\")\n  set(\"lbl_y_param_name\",\"\")\n}\n\nconsole.log ( devices )"
+                    "onValue": "let index = getProp(this,\"id\").replace('button_','')\nlet target = \"params_\" + index\nlet params = getVar(target,\"params\")\nlet visible_macros = getVar(\"devices_\" + index,\"devices\")[0][4]\nlet n = 0;\nparams.forEach( (p,i) => {\n  if ( !p[4].includes(\"Device On\") ){\n    if ( n <= visible_macros ){\n      n++;\n      set(\"param_lbl_\" + n,p[4].replace(' ','\\n').replace('\"','').replace('\"',''))\n      set(\"fader_param_\" + n,parseFloat(p[5]))\n      setVar(\"fader_param_\" + n,\"range\", {min:parseFloat(p[6]),max:parseFloat(p[7])})\n      setVar(\"fader_param_\" + n,\"device\",parseInt(p[3]))\n    }\n  }\n})\n\n//set current track indicator\nset(\"current_track\",index)\n\n\nlet device = \"devices_\" + index\nlet devices = getVar(device,\"devices\")\n\n//set the current device the first of the track\nset(\"current_device\",devices[0][1].replace('\"','').replace('\"',''))\nsetVar(\"current_device\",\"color\",getVar(this,\"color\"))\n\n\nsetVar(\"current_track\",\"color\",getVar(this,\"color\"))\n//set variation_count to device_variations \nset(\"device_variations\",parseInt(devices[0][2]))\n//set device id to current_variation\nsetVar(\"current_variation\",\"device\",parseInt(devices[0][4]))\n//get the last variation selected for the current device\nset(\"current_variation\",getVar(this,\"lastVariation\"))\n\n//Assign device id to randomize button\nsetVar(\"button_randomize\",\"device\",parseInt(devices[0][4]))\n\nlet xypad = getVar(this,\"xypad\")\nif ( xypad.xDevice.id && xypad.yDevice.id ){\n  setVar(\"xy_1\",\"xDevice\",xypad.xDevice.id)\n  setVar(\"xy_1\",\"yDevice\",xypad.yDevice.id)\n  set(\"lbl_x_param_name\",xypad.xDevice.name)\n  set(\"lbl_y_param_name\",xypad.yDevice.name)\n} else {\n  setVar(\"xy_1\",\"xDevice\",0)\n  setVar(\"xy_1\",\"yDevice\",0)\n  set(\"lbl_x_param_name\",\"\")\n  set(\"lbl_y_param_name\",\"\")\n}\nsetVar(\"button_track_devices\",\"devices\",devices)\n\nlet devs = { \"labels\" : [],\"values\" : [] }\nif ( devices.length > 1 ){\n  devices.map ( (d,index) => {\n    devs.labels.push (d[1].replace('\"','').replace('\"',''))\n    devs.values.push (index)\n  })\n  setVar(\"menu_devices\",\"visible\",true)\n} else {\n  setVar(\"menu_devices\",\"visible\",false)\n}\n// setVar(\"dropdown_devices\",\"options\",devs)\nsetVar(\"menu_devices\",\"options\",devs)\nsetVar(\"menu_devices\",\"color\",getVar(this,\"color\"))\nset(\"current_device_index\",0)"
                   },
                   {
                     "type": "button",
@@ -2718,7 +2718,7 @@
                     "ignoreDefaults": false,
                     "bypass": false,
                     "onCreate": "setVar(this,\"params\",[])\nsetVar(this,\"lastVariation\",1)\nsetVar(this,\"xypad\",{xDevice:{name:'',id:0},yDevice:{name:'',id:0}})",
-                    "onValue": "let index = getProp(this,\"id\").replace('button_','')\nlet target = \"params_\" + index\nlet params = getVar(target,\"params\")\nlet visible_macros = getVar(\"devices_\" + index,\"devices\")[0][4]\nlet n = 0;\nparams.forEach( (p,i) => {\n  if ( !p[4].includes(\"Device On\") ){\n    if ( n <= visible_macros ){\n      n++;\n      set(\"param_lbl_\" + n,p[4].replace(' ','\\n').replace('\"','').replace('\"',''))\n      set(\"fader_param_\" + n,parseFloat(p[5]))\n      setVar(\"fader_param_\" + n,\"range\", {min:parseFloat(p[6]),max:parseFloat(p[7])})\n      setVar(\"fader_param_\" + n,\"device\",parseInt(p[3]))\n    }\n  }\n})\n\n//set current track indicator\nset(\"current_track\",index)\n\n\nlet device = \"devices_\" + index\nlet devices = getVar(device,\"devices\")\n\n//set the current device the first of the track\nset(\"current_device\",devices[0][1].replace('\"','').replace('\"',''))\nsetVar(\"current_device\",\"color\",getVar(this,\"color\"))\n\n\nsetVar(\"current_track\",\"color\",getVar(this,\"color\"))\n//set variation_count to device_variations \nset(\"device_variations\",parseInt(devices[0][2]))\n//set device id to current_variation\nsetVar(\"current_variation\",\"device\",parseInt(devices[0][4]))\n//get the last variation selected for the current device\nset(\"current_variation\",getVar(this,\"lastVariation\"))\n\n//Assign device id to randomize button\nsetVar(\"button_randomize\",\"device\",parseInt(devices[0][4]))\n\nlet xypad = getVar(this,\"xypad\")\nif ( xypad.xDevice.id && xypad.yDevice.id ){\n  setVar(\"xy_1\",\"xDevice\",xypad.xDevice.id)\n  setVar(\"xy_1\",\"yDevice\",xypad.yDevice.id)\n  set(\"lbl_x_param_name\",xypad.xDevice.name)\n  set(\"lbl_y_param_name\",xypad.yDevice.name)\n} else {\n  setVar(\"xy_1\",\"xDevice\",0)\n  setVar(\"xy_1\",\"yDevice\",0)\n  set(\"lbl_x_param_name\",\"\")\n  set(\"lbl_y_param_name\",\"\")\n}\n\nconsole.log ( devices )"
+                    "onValue": "let index = getProp(this,\"id\").replace('button_','')\nlet target = \"params_\" + index\nlet params = getVar(target,\"params\")\nlet visible_macros = getVar(\"devices_\" + index,\"devices\")[0][4]\nlet n = 0;\nparams.forEach( (p,i) => {\n  if ( !p[4].includes(\"Device On\") ){\n    if ( n <= visible_macros ){\n      n++;\n      set(\"param_lbl_\" + n,p[4].replace(' ','\\n').replace('\"','').replace('\"',''))\n      set(\"fader_param_\" + n,parseFloat(p[5]))\n      setVar(\"fader_param_\" + n,\"range\", {min:parseFloat(p[6]),max:parseFloat(p[7])})\n      setVar(\"fader_param_\" + n,\"device\",parseInt(p[3]))\n    }\n  }\n})\n\n//set current track indicator\nset(\"current_track\",index)\n\n\nlet device = \"devices_\" + index\nlet devices = getVar(device,\"devices\")\n\n//set the current device the first of the track\nset(\"current_device\",devices[0][1].replace('\"','').replace('\"',''))\nsetVar(\"current_device\",\"color\",getVar(this,\"color\"))\n\n\nsetVar(\"current_track\",\"color\",getVar(this,\"color\"))\n//set variation_count to device_variations \nset(\"device_variations\",parseInt(devices[0][2]))\n//set device id to current_variation\nsetVar(\"current_variation\",\"device\",parseInt(devices[0][4]))\n//get the last variation selected for the current device\nset(\"current_variation\",getVar(this,\"lastVariation\"))\n\n//Assign device id to randomize button\nsetVar(\"button_randomize\",\"device\",parseInt(devices[0][4]))\n\nlet xypad = getVar(this,\"xypad\")\nif ( xypad.xDevice.id && xypad.yDevice.id ){\n  setVar(\"xy_1\",\"xDevice\",xypad.xDevice.id)\n  setVar(\"xy_1\",\"yDevice\",xypad.yDevice.id)\n  set(\"lbl_x_param_name\",xypad.xDevice.name)\n  set(\"lbl_y_param_name\",xypad.yDevice.name)\n} else {\n  setVar(\"xy_1\",\"xDevice\",0)\n  setVar(\"xy_1\",\"yDevice\",0)\n  set(\"lbl_x_param_name\",\"\")\n  set(\"lbl_y_param_name\",\"\")\n}\nsetVar(\"button_track_devices\",\"devices\",devices)\n\nlet devs = { \"labels\" : [],\"values\" : [] }\nif ( devices.length > 1 ){\n  devices.map ( (d,index) => {\n    devs.labels.push (d[1].replace('\"','').replace('\"',''))\n    devs.values.push (index)\n  })\n  setVar(\"menu_devices\",\"visible\",true)\n} else {\n  setVar(\"menu_devices\",\"visible\",false)\n}\n// setVar(\"dropdown_devices\",\"options\",devs)\nsetVar(\"menu_devices\",\"options\",devs)\nsetVar(\"menu_devices\",\"color\",getVar(this,\"color\"))\nset(\"current_device_index\",0)"
                   },
                   {
                     "type": "button",
@@ -2764,7 +2764,7 @@
                     "ignoreDefaults": false,
                     "bypass": false,
                     "onCreate": "setVar(this,\"params\",[])\nsetVar(this,\"lastVariation\",1)\nsetVar(this,\"xypad\",{xDevice:{name:'',id:0},yDevice:{name:'',id:0}})",
-                    "onValue": "let index = getProp(this,\"id\").replace('button_','')\nlet target = \"params_\" + index\nlet params = getVar(target,\"params\")\nlet visible_macros = getVar(\"devices_\" + index,\"devices\")[0][4]\nlet n = 0;\nparams.forEach( (p,i) => {\n  if ( !p[4].includes(\"Device On\") ){\n    if ( n <= visible_macros ){\n      n++;\n      set(\"param_lbl_\" + n,p[4].replace(' ','\\n').replace('\"','').replace('\"',''))\n      set(\"fader_param_\" + n,parseFloat(p[5]))\n      setVar(\"fader_param_\" + n,\"range\", {min:parseFloat(p[6]),max:parseFloat(p[7])})\n      setVar(\"fader_param_\" + n,\"device\",parseInt(p[3]))\n    }\n  }\n})\n\n//set current track indicator\nset(\"current_track\",index)\n\n\nlet device = \"devices_\" + index\nlet devices = getVar(device,\"devices\")\n\n//set the current device the first of the track\nset(\"current_device\",devices[0][1].replace('\"','').replace('\"',''))\nsetVar(\"current_device\",\"color\",getVar(this,\"color\"))\n\n\nsetVar(\"current_track\",\"color\",getVar(this,\"color\"))\n//set variation_count to device_variations \nset(\"device_variations\",parseInt(devices[0][2]))\n//set device id to current_variation\nsetVar(\"current_variation\",\"device\",parseInt(devices[0][4]))\n//get the last variation selected for the current device\nset(\"current_variation\",getVar(this,\"lastVariation\"))\n\n//Assign device id to randomize button\nsetVar(\"button_randomize\",\"device\",parseInt(devices[0][4]))\n\nlet xypad = getVar(this,\"xypad\")\nif ( xypad.xDevice.id && xypad.yDevice.id ){\n  setVar(\"xy_1\",\"xDevice\",xypad.xDevice.id)\n  setVar(\"xy_1\",\"yDevice\",xypad.yDevice.id)\n  set(\"lbl_x_param_name\",xypad.xDevice.name)\n  set(\"lbl_y_param_name\",xypad.yDevice.name)\n} else {\n  setVar(\"xy_1\",\"xDevice\",0)\n  setVar(\"xy_1\",\"yDevice\",0)\n  set(\"lbl_x_param_name\",\"\")\n  set(\"lbl_y_param_name\",\"\")\n}\n\nconsole.log ( devices )"
+                    "onValue": "let index = getProp(this,\"id\").replace('button_','')\nlet target = \"params_\" + index\nlet params = getVar(target,\"params\")\nlet visible_macros = getVar(\"devices_\" + index,\"devices\")[0][4]\nlet n = 0;\nparams.forEach( (p,i) => {\n  if ( !p[4].includes(\"Device On\") ){\n    if ( n <= visible_macros ){\n      n++;\n      set(\"param_lbl_\" + n,p[4].replace(' ','\\n').replace('\"','').replace('\"',''))\n      set(\"fader_param_\" + n,parseFloat(p[5]))\n      setVar(\"fader_param_\" + n,\"range\", {min:parseFloat(p[6]),max:parseFloat(p[7])})\n      setVar(\"fader_param_\" + n,\"device\",parseInt(p[3]))\n    }\n  }\n})\n\n//set current track indicator\nset(\"current_track\",index)\n\n\nlet device = \"devices_\" + index\nlet devices = getVar(device,\"devices\")\n\n//set the current device the first of the track\nset(\"current_device\",devices[0][1].replace('\"','').replace('\"',''))\nsetVar(\"current_device\",\"color\",getVar(this,\"color\"))\n\n\nsetVar(\"current_track\",\"color\",getVar(this,\"color\"))\n//set variation_count to device_variations \nset(\"device_variations\",parseInt(devices[0][2]))\n//set device id to current_variation\nsetVar(\"current_variation\",\"device\",parseInt(devices[0][4]))\n//get the last variation selected for the current device\nset(\"current_variation\",getVar(this,\"lastVariation\"))\n\n//Assign device id to randomize button\nsetVar(\"button_randomize\",\"device\",parseInt(devices[0][4]))\n\nlet xypad = getVar(this,\"xypad\")\nif ( xypad.xDevice.id && xypad.yDevice.id ){\n  setVar(\"xy_1\",\"xDevice\",xypad.xDevice.id)\n  setVar(\"xy_1\",\"yDevice\",xypad.yDevice.id)\n  set(\"lbl_x_param_name\",xypad.xDevice.name)\n  set(\"lbl_y_param_name\",xypad.yDevice.name)\n} else {\n  setVar(\"xy_1\",\"xDevice\",0)\n  setVar(\"xy_1\",\"yDevice\",0)\n  set(\"lbl_x_param_name\",\"\")\n  set(\"lbl_y_param_name\",\"\")\n}\nsetVar(\"button_track_devices\",\"devices\",devices)\n\nlet devs = { \"labels\" : [],\"values\" : [] }\nif ( devices.length > 1 ){\n  devices.map ( (d,index) => {\n    devs.labels.push (d[1].replace('\"','').replace('\"',''))\n    devs.values.push (index)\n  })\n  setVar(\"menu_devices\",\"visible\",true)\n} else {\n  setVar(\"menu_devices\",\"visible\",false)\n}\n// setVar(\"dropdown_devices\",\"options\",devs)\nsetVar(\"menu_devices\",\"options\",devs)\nsetVar(\"menu_devices\",\"color\",getVar(this,\"color\"))\nset(\"current_device_index\",0)"
                   },
                   {
                     "type": "button",
@@ -2810,7 +2810,7 @@
                     "ignoreDefaults": false,
                     "bypass": false,
                     "onCreate": "setVar(this,\"params\",[])\nsetVar(this,\"lastVariation\",1)\nsetVar(this,\"xypad\",{xDevice:{name:'',id:0},yDevice:{name:'',id:0}})",
-                    "onValue": "let index = getProp(this,\"id\").replace('button_','')\nlet target = \"params_\" + index\nlet params = getVar(target,\"params\")\nlet visible_macros = getVar(\"devices_\" + index,\"devices\")[0][4]\nlet n = 0;\nparams.forEach( (p,i) => {\n  if ( !p[4].includes(\"Device On\") ){\n    if ( n <= visible_macros ){\n      n++;\n      set(\"param_lbl_\" + n,p[4].replace(' ','\\n').replace('\"','').replace('\"',''))\n      set(\"fader_param_\" + n,parseFloat(p[5]))\n      setVar(\"fader_param_\" + n,\"range\", {min:parseFloat(p[6]),max:parseFloat(p[7])})\n      setVar(\"fader_param_\" + n,\"device\",parseInt(p[3]))\n    }\n  }\n})\n\n//set current track indicator\nset(\"current_track\",index)\n\n\nlet device = \"devices_\" + index\nlet devices = getVar(device,\"devices\")\n\n//set the current device the first of the track\nset(\"current_device\",devices[0][1].replace('\"','').replace('\"',''))\nsetVar(\"current_device\",\"color\",getVar(this,\"color\"))\n\n\nsetVar(\"current_track\",\"color\",getVar(this,\"color\"))\n//set variation_count to device_variations \nset(\"device_variations\",parseInt(devices[0][2]))\n//set device id to current_variation\nsetVar(\"current_variation\",\"device\",parseInt(devices[0][4]))\n//get the last variation selected for the current device\nset(\"current_variation\",getVar(this,\"lastVariation\"))\n\n//Assign device id to randomize button\nsetVar(\"button_randomize\",\"device\",parseInt(devices[0][4]))\n\nlet xypad = getVar(this,\"xypad\")\nif ( xypad.xDevice.id && xypad.yDevice.id ){\n  setVar(\"xy_1\",\"xDevice\",xypad.xDevice.id)\n  setVar(\"xy_1\",\"yDevice\",xypad.yDevice.id)\n  set(\"lbl_x_param_name\",xypad.xDevice.name)\n  set(\"lbl_y_param_name\",xypad.yDevice.name)\n} else {\n  setVar(\"xy_1\",\"xDevice\",0)\n  setVar(\"xy_1\",\"yDevice\",0)\n  set(\"lbl_x_param_name\",\"\")\n  set(\"lbl_y_param_name\",\"\")\n}\n\nconsole.log ( devices )"
+                    "onValue": "let index = getProp(this,\"id\").replace('button_','')\nlet target = \"params_\" + index\nlet params = getVar(target,\"params\")\nlet visible_macros = getVar(\"devices_\" + index,\"devices\")[0][4]\nlet n = 0;\nparams.forEach( (p,i) => {\n  if ( !p[4].includes(\"Device On\") ){\n    if ( n <= visible_macros ){\n      n++;\n      set(\"param_lbl_\" + n,p[4].replace(' ','\\n').replace('\"','').replace('\"',''))\n      set(\"fader_param_\" + n,parseFloat(p[5]))\n      setVar(\"fader_param_\" + n,\"range\", {min:parseFloat(p[6]),max:parseFloat(p[7])})\n      setVar(\"fader_param_\" + n,\"device\",parseInt(p[3]))\n    }\n  }\n})\n\n//set current track indicator\nset(\"current_track\",index)\n\n\nlet device = \"devices_\" + index\nlet devices = getVar(device,\"devices\")\n\n//set the current device the first of the track\nset(\"current_device\",devices[0][1].replace('\"','').replace('\"',''))\nsetVar(\"current_device\",\"color\",getVar(this,\"color\"))\n\n\nsetVar(\"current_track\",\"color\",getVar(this,\"color\"))\n//set variation_count to device_variations \nset(\"device_variations\",parseInt(devices[0][2]))\n//set device id to current_variation\nsetVar(\"current_variation\",\"device\",parseInt(devices[0][4]))\n//get the last variation selected for the current device\nset(\"current_variation\",getVar(this,\"lastVariation\"))\n\n//Assign device id to randomize button\nsetVar(\"button_randomize\",\"device\",parseInt(devices[0][4]))\n\nlet xypad = getVar(this,\"xypad\")\nif ( xypad.xDevice.id && xypad.yDevice.id ){\n  setVar(\"xy_1\",\"xDevice\",xypad.xDevice.id)\n  setVar(\"xy_1\",\"yDevice\",xypad.yDevice.id)\n  set(\"lbl_x_param_name\",xypad.xDevice.name)\n  set(\"lbl_y_param_name\",xypad.yDevice.name)\n} else {\n  setVar(\"xy_1\",\"xDevice\",0)\n  setVar(\"xy_1\",\"yDevice\",0)\n  set(\"lbl_x_param_name\",\"\")\n  set(\"lbl_y_param_name\",\"\")\n}\nsetVar(\"button_track_devices\",\"devices\",devices)\n\nlet devs = { \"labels\" : [],\"values\" : [] }\nif ( devices.length > 1 ){\n  devices.map ( (d,index) => {\n    devs.labels.push (d[1].replace('\"','').replace('\"',''))\n    devs.values.push (index)\n  })\n  setVar(\"menu_devices\",\"visible\",true)\n} else {\n  setVar(\"menu_devices\",\"visible\",false)\n}\n// setVar(\"dropdown_devices\",\"options\",devs)\nsetVar(\"menu_devices\",\"options\",devs)\nsetVar(\"menu_devices\",\"color\",getVar(this,\"color\"))\nset(\"current_device_index\",0)"
                   },
                   {
                     "type": "button",
@@ -2856,7 +2856,7 @@
                     "ignoreDefaults": false,
                     "bypass": false,
                     "onCreate": "setVar(this,\"params\",[])\nsetVar(this,\"lastVariation\",1)\nsetVar(this,\"xypad\",{xDevice:{name:'',id:0},yDevice:{name:'',id:0}})",
-                    "onValue": "let index = getProp(this,\"id\").replace('button_','')\nlet target = \"params_\" + index\nlet params = getVar(target,\"params\")\nlet visible_macros = getVar(\"devices_\" + index,\"devices\")[0][4]\nlet n = 0;\nparams.forEach( (p,i) => {\n  if ( !p[4].includes(\"Device On\") ){\n    if ( n <= visible_macros ){\n      n++;\n      set(\"param_lbl_\" + n,p[4].replace(' ','\\n').replace('\"','').replace('\"',''))\n      set(\"fader_param_\" + n,parseFloat(p[5]))\n      setVar(\"fader_param_\" + n,\"range\", {min:parseFloat(p[6]),max:parseFloat(p[7])})\n      setVar(\"fader_param_\" + n,\"device\",parseInt(p[3]))\n    }\n  }\n})\n\n//set current track indicator\nset(\"current_track\",index)\n\n\nlet device = \"devices_\" + index\nlet devices = getVar(device,\"devices\")\n\n//set the current device the first of the track\nset(\"current_device\",devices[0][1].replace('\"','').replace('\"',''))\nsetVar(\"current_device\",\"color\",getVar(this,\"color\"))\n\n\nsetVar(\"current_track\",\"color\",getVar(this,\"color\"))\n//set variation_count to device_variations \nset(\"device_variations\",parseInt(devices[0][2]))\n//set device id to current_variation\nsetVar(\"current_variation\",\"device\",parseInt(devices[0][4]))\n//get the last variation selected for the current device\nset(\"current_variation\",getVar(this,\"lastVariation\"))\n\n//Assign device id to randomize button\nsetVar(\"button_randomize\",\"device\",parseInt(devices[0][4]))\n\nlet xypad = getVar(this,\"xypad\")\nif ( xypad.xDevice.id && xypad.yDevice.id ){\n  setVar(\"xy_1\",\"xDevice\",xypad.xDevice.id)\n  setVar(\"xy_1\",\"yDevice\",xypad.yDevice.id)\n  set(\"lbl_x_param_name\",xypad.xDevice.name)\n  set(\"lbl_y_param_name\",xypad.yDevice.name)\n} else {\n  setVar(\"xy_1\",\"xDevice\",0)\n  setVar(\"xy_1\",\"yDevice\",0)\n  set(\"lbl_x_param_name\",\"\")\n  set(\"lbl_y_param_name\",\"\")\n}\n\nconsole.log ( devices )"
+                    "onValue": "let index = getProp(this,\"id\").replace('button_','')\nlet target = \"params_\" + index\nlet params = getVar(target,\"params\")\nlet visible_macros = getVar(\"devices_\" + index,\"devices\")[0][4]\nlet n = 0;\nparams.forEach( (p,i) => {\n  if ( !p[4].includes(\"Device On\") ){\n    if ( n <= visible_macros ){\n      n++;\n      set(\"param_lbl_\" + n,p[4].replace(' ','\\n').replace('\"','').replace('\"',''))\n      set(\"fader_param_\" + n,parseFloat(p[5]))\n      setVar(\"fader_param_\" + n,\"range\", {min:parseFloat(p[6]),max:parseFloat(p[7])})\n      setVar(\"fader_param_\" + n,\"device\",parseInt(p[3]))\n    }\n  }\n})\n\n//set current track indicator\nset(\"current_track\",index)\n\n\nlet device = \"devices_\" + index\nlet devices = getVar(device,\"devices\")\n\n//set the current device the first of the track\nset(\"current_device\",devices[0][1].replace('\"','').replace('\"',''))\nsetVar(\"current_device\",\"color\",getVar(this,\"color\"))\n\n\nsetVar(\"current_track\",\"color\",getVar(this,\"color\"))\n//set variation_count to device_variations \nset(\"device_variations\",parseInt(devices[0][2]))\n//set device id to current_variation\nsetVar(\"current_variation\",\"device\",parseInt(devices[0][4]))\n//get the last variation selected for the current device\nset(\"current_variation\",getVar(this,\"lastVariation\"))\n\n//Assign device id to randomize button\nsetVar(\"button_randomize\",\"device\",parseInt(devices[0][4]))\n\nlet xypad = getVar(this,\"xypad\")\nif ( xypad.xDevice.id && xypad.yDevice.id ){\n  setVar(\"xy_1\",\"xDevice\",xypad.xDevice.id)\n  setVar(\"xy_1\",\"yDevice\",xypad.yDevice.id)\n  set(\"lbl_x_param_name\",xypad.xDevice.name)\n  set(\"lbl_y_param_name\",xypad.yDevice.name)\n} else {\n  setVar(\"xy_1\",\"xDevice\",0)\n  setVar(\"xy_1\",\"yDevice\",0)\n  set(\"lbl_x_param_name\",\"\")\n  set(\"lbl_y_param_name\",\"\")\n}\nsetVar(\"button_track_devices\",\"devices\",devices)\n\nlet devs = { \"labels\" : [],\"values\" : [] }\nif ( devices.length > 1 ){\n  devices.map ( (d,index) => {\n    devs.labels.push (d[1].replace('\"','').replace('\"',''))\n    devs.values.push (index)\n  })\n  setVar(\"menu_devices\",\"visible\",true)\n} else {\n  setVar(\"menu_devices\",\"visible\",false)\n}\n// setVar(\"dropdown_devices\",\"options\",devs)\nsetVar(\"menu_devices\",\"options\",devs)\nsetVar(\"menu_devices\",\"color\",getVar(this,\"color\"))\nset(\"current_device_index\",0)"
                   },
                   {
                     "type": "fader",
@@ -3451,7 +3451,7 @@
                     "ignoreDefaults": false,
                     "bypass": false,
                     "onCreate": "setVar(this,\"params\",[])\nsetVar(this,\"lastVariation\",1)\nsetVar(this,\"label\",\"Empty\")\nsetVar(this,\"xypad\",{xDevice:{name:'',id:0},yDevice:{name:'',id:0}})",
-                    "onValue": "let index = getProp(this,\"id\").replace('button_','')\nlet target = \"params_\" + index\nlet params = getVar(target,\"params\")\nlet n = 0;\nparams.forEach( (p,i) => {\n  if ( !p[4].includes(\"Device On\") ){\n    n++;\n    set(\"param_lbl_\" + n,p[4].replace(' ','\\n').replace('\"','').replace('\"',''))\n    set(\"fader_param_\" + n,parseFloat(p[5]))\n    setVar(\"fader_param_\" + n,\"range\", {min:parseFloat(p[6]),max:parseFloat(p[7])})\n    setVar(\"fader_param_\" + n,\"device\",parseInt(p[3]))\n  }\n})\n\n//set current track indicator\nset(\"current_track\",index)\n\n\nlet device = \"devices_\" + index\nlet devices = getVar(device,\"devices\")\n\n//set the current device the first of the track\nset(\"current_device\",devices[0][1].replace('\"','').replace('\"',''))\nsetVar(\"current_device\",\"color\",getVar(this,\"color\"))\n\n\nsetVar(\"current_track\",\"color\",getVar(this,\"color\"))\n//set variation_count to device_variations \nset(\"device_variations\",parseInt(devices[0][2]))\n//set device id to current_variation\nsetVar(\"current_variation\",\"device\",parseInt(devices[0][4]))\n//get the last variation selected for the current device\nset(\"current_variation\",getVar(this,\"lastVariation\"))\n\nsetVar(\"button_new_variation\",\"device\",parseInt(devices[0][4]))\n\n//Assign device id to randomize button\nsetVar(\"button_randomize\",\"device\",parseInt(devices[0][4]))\n\nlet xypad = getVar(this,\"xypad\")\nif ( xypad.xDevice.id && xypad.yDevice.id ){\n  setVar(\"xy_1\",\"xDevice\",xypad.xDevice.id)\n  setVar(\"xy_1\",\"yDevice\",xypad.yDevice.id)\n  set(\"lbl_x_param_name\",xypad.xDevice.name)\n  set(\"lbl_y_param_name\",xypad.yDevice.name)\n} else {\n  setVar(\"xy_1\",\"xDevice\",0)\n  setVar(\"xy_1\",\"yDevice\",0)\n  set(\"lbl_x_param_name\",\"\")\n  set(\"lbl_y_param_name\",\"\")\n}\n"
+                    "onValue": "let index = getProp(this,\"id\").replace('button_','')\nlet target = \"params_\" + index\nlet params = getVar(target,\"params\")\nlet visible_macros = getVar(\"devices_\" + index,\"devices\")[0][4]\nlet n = 0;\nparams.forEach( (p,i) => {\n  if ( !p[4].includes(\"Device On\") ){\n    if ( n <= visible_macros ){\n      n++;\n      set(\"param_lbl_\" + n,p[4].replace(' ','\\n').replace('\"','').replace('\"',''))\n      set(\"fader_param_\" + n,parseFloat(p[5]))\n      setVar(\"fader_param_\" + n,\"range\", {min:parseFloat(p[6]),max:parseFloat(p[7])})\n      setVar(\"fader_param_\" + n,\"device\",parseInt(p[3]))\n    }\n  }\n})\n\n//set current track indicator\nset(\"current_track\",index)\n\n\nlet device = \"devices_\" + index\nlet devices = getVar(device,\"devices\")\n\n//set the current device the first of the track\nset(\"current_device\",devices[0][1].replace('\"','').replace('\"',''))\nsetVar(\"current_device\",\"color\",getVar(this,\"color\"))\n\n\nsetVar(\"current_track\",\"color\",getVar(this,\"color\"))\n//set variation_count to device_variations \nset(\"device_variations\",parseInt(devices[0][2]))\n//set device id to current_variation\nsetVar(\"current_variation\",\"device\",parseInt(devices[0][4]))\n//get the last variation selected for the current device\nset(\"current_variation\",getVar(this,\"lastVariation\"))\n\n//Assign device id to randomize button\nsetVar(\"button_randomize\",\"device\",parseInt(devices[0][4]))\n\nlet xypad = getVar(this,\"xypad\")\nif ( xypad.xDevice.id && xypad.yDevice.id ){\n  setVar(\"xy_1\",\"xDevice\",xypad.xDevice.id)\n  setVar(\"xy_1\",\"yDevice\",xypad.yDevice.id)\n  set(\"lbl_x_param_name\",xypad.xDevice.name)\n  set(\"lbl_y_param_name\",xypad.yDevice.name)\n} else {\n  setVar(\"xy_1\",\"xDevice\",0)\n  setVar(\"xy_1\",\"yDevice\",0)\n  set(\"lbl_x_param_name\",\"\")\n  set(\"lbl_y_param_name\",\"\")\n}\nsetVar(\"button_track_devices\",\"devices\",devices)\n\nlet devs = { \"labels\" : [],\"values\" : [] }\nif ( devices.length > 1 ){\n  devices.map ( (d,index) => {\n    devs.labels.push (d[1].replace('\"','').replace('\"',''))\n    devs.values.push (index)\n  })\n  setVar(\"menu_devices\",\"visible\",true)\n} else {\n  setVar(\"menu_devices\",\"visible\",false)\n}\n// setVar(\"dropdown_devices\",\"options\",devs)\nsetVar(\"menu_devices\",\"options\",devs)\nsetVar(\"menu_devices\",\"color\",getVar(this,\"color\"))\nset(\"current_device_index\",0)"
                   },
                   {
                     "type": "button",
@@ -3497,7 +3497,7 @@
                     "ignoreDefaults": false,
                     "bypass": false,
                     "onCreate": "setVar(this,\"params\",[])\nsetVar(this,\"lastVariation\",1)\nsetVar(this,\"label\",\"Empty\")\nsetVar(this,\"xypad\",{xDevice:{name:'',id:0},yDevice:{name:'',id:0}})",
-                    "onValue": "let index = getProp(this,\"id\").replace('button_','')\nlet target = \"params_\" + index\nlet params = getVar(target,\"params\")\nlet n = 0;\nparams.forEach( (p,i) => {\n  if ( !p[4].includes(\"Device On\") ){\n    n++;\n    set(\"param_lbl_\" + n,p[4].replace(' ','\\n').replace('\"','').replace('\"',''))\n    set(\"fader_param_\" + n,parseFloat(p[5]))\n    setVar(\"fader_param_\" + n,\"range\", {min:parseFloat(p[6]),max:parseFloat(p[7])})\n    setVar(\"fader_param_\" + n,\"device\",parseInt(p[3]))\n  }\n})\n\n//set current track indicator\nset(\"current_track\",index)\n\n\nlet device = \"devices_\" + index\nlet devices = getVar(device,\"devices\")\n\n//set the current device the first of the track\nset(\"current_device\",devices[0][1].replace('\"','').replace('\"',''))\nsetVar(\"current_device\",\"color\",getVar(this,\"color\"))\n\n\nsetVar(\"current_track\",\"color\",getVar(this,\"color\"))\n//set variation_count to device_variations \nset(\"device_variations\",parseInt(devices[0][2]))\n//set device id to current_variation\nsetVar(\"current_variation\",\"device\",parseInt(devices[0][4]))\n//get the last variation selected for the current device\nset(\"current_variation\",getVar(this,\"lastVariation\"))\n\nsetVar(\"button_new_variation\",\"device\",parseInt(devices[0][4]))\n\n//Assign device id to randomize button\nsetVar(\"button_randomize\",\"device\",parseInt(devices[0][4]))\n\nlet xypad = getVar(this,\"xypad\")\nif ( xypad.xDevice.id && xypad.yDevice.id ){\n  setVar(\"xy_1\",\"xDevice\",xypad.xDevice.id)\n  setVar(\"xy_1\",\"yDevice\",xypad.yDevice.id)\n  set(\"lbl_x_param_name\",xypad.xDevice.name)\n  set(\"lbl_y_param_name\",xypad.yDevice.name)\n} else {\n  setVar(\"xy_1\",\"xDevice\",0)\n  setVar(\"xy_1\",\"yDevice\",0)\n  set(\"lbl_x_param_name\",\"\")\n  set(\"lbl_y_param_name\",\"\")\n}\n"
+                    "onValue": "let index = getProp(this,\"id\").replace('button_','')\nlet target = \"params_\" + index\nlet params = getVar(target,\"params\")\nlet visible_macros = getVar(\"devices_\" + index,\"devices\")[0][4]\nlet n = 0;\nparams.forEach( (p,i) => {\n  if ( !p[4].includes(\"Device On\") ){\n    if ( n <= visible_macros ){\n      n++;\n      set(\"param_lbl_\" + n,p[4].replace(' ','\\n').replace('\"','').replace('\"',''))\n      set(\"fader_param_\" + n,parseFloat(p[5]))\n      setVar(\"fader_param_\" + n,\"range\", {min:parseFloat(p[6]),max:parseFloat(p[7])})\n      setVar(\"fader_param_\" + n,\"device\",parseInt(p[3]))\n    }\n  }\n})\n\n//set current track indicator\nset(\"current_track\",index)\n\n\nlet device = \"devices_\" + index\nlet devices = getVar(device,\"devices\")\n\n//set the current device the first of the track\nset(\"current_device\",devices[0][1].replace('\"','').replace('\"',''))\nsetVar(\"current_device\",\"color\",getVar(this,\"color\"))\n\n\nsetVar(\"current_track\",\"color\",getVar(this,\"color\"))\n//set variation_count to device_variations \nset(\"device_variations\",parseInt(devices[0][2]))\n//set device id to current_variation\nsetVar(\"current_variation\",\"device\",parseInt(devices[0][4]))\n//get the last variation selected for the current device\nset(\"current_variation\",getVar(this,\"lastVariation\"))\n\n//Assign device id to randomize button\nsetVar(\"button_randomize\",\"device\",parseInt(devices[0][4]))\n\nlet xypad = getVar(this,\"xypad\")\nif ( xypad.xDevice.id && xypad.yDevice.id ){\n  setVar(\"xy_1\",\"xDevice\",xypad.xDevice.id)\n  setVar(\"xy_1\",\"yDevice\",xypad.yDevice.id)\n  set(\"lbl_x_param_name\",xypad.xDevice.name)\n  set(\"lbl_y_param_name\",xypad.yDevice.name)\n} else {\n  setVar(\"xy_1\",\"xDevice\",0)\n  setVar(\"xy_1\",\"yDevice\",0)\n  set(\"lbl_x_param_name\",\"\")\n  set(\"lbl_y_param_name\",\"\")\n}\nsetVar(\"button_track_devices\",\"devices\",devices)\n\nlet devs = { \"labels\" : [],\"values\" : [] }\nif ( devices.length > 1 ){\n  devices.map ( (d,index) => {\n    devs.labels.push (d[1].replace('\"','').replace('\"',''))\n    devs.values.push (index)\n  })\n  setVar(\"menu_devices\",\"visible\",true)\n} else {\n  setVar(\"menu_devices\",\"visible\",false)\n}\n// setVar(\"dropdown_devices\",\"options\",devs)\nsetVar(\"menu_devices\",\"options\",devs)\nsetVar(\"menu_devices\",\"color\",getVar(this,\"color\"))\nset(\"current_device_index\",0)"
                   },
                   {
                     "type": "button",
@@ -3543,7 +3543,7 @@
                     "ignoreDefaults": false,
                     "bypass": false,
                     "onCreate": "setVar(this,\"params\",[])\nsetVar(this,\"lastVariation\",1)\nsetVar(this,\"label\",\"Empty\")\nsetVar(this,\"xypad\",{xDevice:{name:'',id:0},yDevice:{name:'',id:0}})",
-                    "onValue": "let index = getProp(this,\"id\").replace('button_','')\nlet target = \"params_\" + index\nlet params = getVar(target,\"params\")\nlet n = 0;\nparams.forEach( (p,i) => {\n  if ( !p[4].includes(\"Device On\") ){\n    n++;\n    set(\"param_lbl_\" + n,p[4].replace(' ','\\n').replace('\"','').replace('\"',''))\n    set(\"fader_param_\" + n,parseFloat(p[5]))\n    setVar(\"fader_param_\" + n,\"range\", {min:parseFloat(p[6]),max:parseFloat(p[7])})\n    setVar(\"fader_param_\" + n,\"device\",parseInt(p[3]))\n  }\n})\n\n//set current track indicator\nset(\"current_track\",index)\n\n\nlet device = \"devices_\" + index\nlet devices = getVar(device,\"devices\")\n\n//set the current device the first of the track\nset(\"current_device\",devices[0][1].replace('\"','').replace('\"',''))\nsetVar(\"current_device\",\"color\",getVar(this,\"color\"))\n\n\nsetVar(\"current_track\",\"color\",getVar(this,\"color\"))\n//set variation_count to device_variations \nset(\"device_variations\",parseInt(devices[0][2]))\n//set device id to current_variation\nsetVar(\"current_variation\",\"device\",parseInt(devices[0][4]))\n//get the last variation selected for the current device\nset(\"current_variation\",getVar(this,\"lastVariation\"))\n\nsetVar(\"button_new_variation\",\"device\",parseInt(devices[0][4]))\n\n//Assign device id to randomize button\nsetVar(\"button_randomize\",\"device\",parseInt(devices[0][4]))\n\nlet xypad = getVar(this,\"xypad\")\nif ( xypad.xDevice.id && xypad.yDevice.id ){\n  setVar(\"xy_1\",\"xDevice\",xypad.xDevice.id)\n  setVar(\"xy_1\",\"yDevice\",xypad.yDevice.id)\n  set(\"lbl_x_param_name\",xypad.xDevice.name)\n  set(\"lbl_y_param_name\",xypad.yDevice.name)\n} else {\n  setVar(\"xy_1\",\"xDevice\",0)\n  setVar(\"xy_1\",\"yDevice\",0)\n  set(\"lbl_x_param_name\",\"\")\n  set(\"lbl_y_param_name\",\"\")\n}\n"
+                    "onValue": "let index = getProp(this,\"id\").replace('button_','')\nlet target = \"params_\" + index\nlet params = getVar(target,\"params\")\nlet visible_macros = getVar(\"devices_\" + index,\"devices\")[0][4]\nlet n = 0;\nparams.forEach( (p,i) => {\n  if ( !p[4].includes(\"Device On\") ){\n    if ( n <= visible_macros ){\n      n++;\n      set(\"param_lbl_\" + n,p[4].replace(' ','\\n').replace('\"','').replace('\"',''))\n      set(\"fader_param_\" + n,parseFloat(p[5]))\n      setVar(\"fader_param_\" + n,\"range\", {min:parseFloat(p[6]),max:parseFloat(p[7])})\n      setVar(\"fader_param_\" + n,\"device\",parseInt(p[3]))\n    }\n  }\n})\n\n//set current track indicator\nset(\"current_track\",index)\n\n\nlet device = \"devices_\" + index\nlet devices = getVar(device,\"devices\")\n\n//set the current device the first of the track\nset(\"current_device\",devices[0][1].replace('\"','').replace('\"',''))\nsetVar(\"current_device\",\"color\",getVar(this,\"color\"))\n\n\nsetVar(\"current_track\",\"color\",getVar(this,\"color\"))\n//set variation_count to device_variations \nset(\"device_variations\",parseInt(devices[0][2]))\n//set device id to current_variation\nsetVar(\"current_variation\",\"device\",parseInt(devices[0][4]))\n//get the last variation selected for the current device\nset(\"current_variation\",getVar(this,\"lastVariation\"))\n\n//Assign device id to randomize button\nsetVar(\"button_randomize\",\"device\",parseInt(devices[0][4]))\n\nlet xypad = getVar(this,\"xypad\")\nif ( xypad.xDevice.id && xypad.yDevice.id ){\n  setVar(\"xy_1\",\"xDevice\",xypad.xDevice.id)\n  setVar(\"xy_1\",\"yDevice\",xypad.yDevice.id)\n  set(\"lbl_x_param_name\",xypad.xDevice.name)\n  set(\"lbl_y_param_name\",xypad.yDevice.name)\n} else {\n  setVar(\"xy_1\",\"xDevice\",0)\n  setVar(\"xy_1\",\"yDevice\",0)\n  set(\"lbl_x_param_name\",\"\")\n  set(\"lbl_y_param_name\",\"\")\n}\nsetVar(\"button_track_devices\",\"devices\",devices)\n\nlet devs = { \"labels\" : [],\"values\" : [] }\nif ( devices.length > 1 ){\n  devices.map ( (d,index) => {\n    devs.labels.push (d[1].replace('\"','').replace('\"',''))\n    devs.values.push (index)\n  })\n  setVar(\"menu_devices\",\"visible\",true)\n} else {\n  setVar(\"menu_devices\",\"visible\",false)\n}\n// setVar(\"dropdown_devices\",\"options\",devs)\nsetVar(\"menu_devices\",\"options\",devs)\nsetVar(\"menu_devices\",\"color\",getVar(this,\"color\"))\nset(\"current_device_index\",0)"
                   },
                   {
                     "type": "button",
@@ -3589,7 +3589,7 @@
                     "ignoreDefaults": false,
                     "bypass": false,
                     "onCreate": "setVar(this,\"params\",[])\nsetVar(this,\"lastVariation\",1)\nsetVar(this,\"label\",\"Empty\")\nsetVar(this,\"xypad\",{xDevice:{name:'',id:0},yDevice:{name:'',id:0}})",
-                    "onValue": "let index = getProp(this,\"id\").replace('button_','')\nlet target = \"params_\" + index\nlet params = getVar(target,\"params\")\nlet n = 0;\nparams.forEach( (p,i) => {\n  if ( !p[4].includes(\"Device On\") ){\n    n++;\n    set(\"param_lbl_\" + n,p[4].replace(' ','\\n').replace('\"','').replace('\"',''))\n    set(\"fader_param_\" + n,parseFloat(p[5]))\n    setVar(\"fader_param_\" + n,\"range\", {min:parseFloat(p[6]),max:parseFloat(p[7])})\n    setVar(\"fader_param_\" + n,\"device\",parseInt(p[3]))\n  }\n})\n\n//set current track indicator\nset(\"current_track\",index)\n\n\nlet device = \"devices_\" + index\nlet devices = getVar(device,\"devices\")\n\n//set the current device the first of the track\nset(\"current_device\",devices[0][1].replace('\"','').replace('\"',''))\nsetVar(\"current_device\",\"color\",getVar(this,\"color\"))\n\n\nsetVar(\"current_track\",\"color\",getVar(this,\"color\"))\n//set variation_count to device_variations \nset(\"device_variations\",parseInt(devices[0][2]))\n//set device id to current_variation\nsetVar(\"current_variation\",\"device\",parseInt(devices[0][4]))\n//get the last variation selected for the current device\nset(\"current_variation\",getVar(this,\"lastVariation\"))\n\nsetVar(\"button_new_variation\",\"device\",parseInt(devices[0][4]))\n\n//Assign device id to randomize button\nsetVar(\"button_randomize\",\"device\",parseInt(devices[0][4]))\n\nlet xypad = getVar(this,\"xypad\")\nif ( xypad.xDevice.id && xypad.yDevice.id ){\n  setVar(\"xy_1\",\"xDevice\",xypad.xDevice.id)\n  setVar(\"xy_1\",\"yDevice\",xypad.yDevice.id)\n  set(\"lbl_x_param_name\",xypad.xDevice.name)\n  set(\"lbl_y_param_name\",xypad.yDevice.name)\n} else {\n  setVar(\"xy_1\",\"xDevice\",0)\n  setVar(\"xy_1\",\"yDevice\",0)\n  set(\"lbl_x_param_name\",\"\")\n  set(\"lbl_y_param_name\",\"\")\n}\n"
+                    "onValue": "let index = getProp(this,\"id\").replace('button_','')\nlet target = \"params_\" + index\nlet params = getVar(target,\"params\")\nlet visible_macros = getVar(\"devices_\" + index,\"devices\")[0][4]\nlet n = 0;\nparams.forEach( (p,i) => {\n  if ( !p[4].includes(\"Device On\") ){\n    if ( n <= visible_macros ){\n      n++;\n      set(\"param_lbl_\" + n,p[4].replace(' ','\\n').replace('\"','').replace('\"',''))\n      set(\"fader_param_\" + n,parseFloat(p[5]))\n      setVar(\"fader_param_\" + n,\"range\", {min:parseFloat(p[6]),max:parseFloat(p[7])})\n      setVar(\"fader_param_\" + n,\"device\",parseInt(p[3]))\n    }\n  }\n})\n\n//set current track indicator\nset(\"current_track\",index)\n\n\nlet device = \"devices_\" + index\nlet devices = getVar(device,\"devices\")\n\n//set the current device the first of the track\nset(\"current_device\",devices[0][1].replace('\"','').replace('\"',''))\nsetVar(\"current_device\",\"color\",getVar(this,\"color\"))\n\n\nsetVar(\"current_track\",\"color\",getVar(this,\"color\"))\n//set variation_count to device_variations \nset(\"device_variations\",parseInt(devices[0][2]))\n//set device id to current_variation\nsetVar(\"current_variation\",\"device\",parseInt(devices[0][4]))\n//get the last variation selected for the current device\nset(\"current_variation\",getVar(this,\"lastVariation\"))\n\n//Assign device id to randomize button\nsetVar(\"button_randomize\",\"device\",parseInt(devices[0][4]))\n\nlet xypad = getVar(this,\"xypad\")\nif ( xypad.xDevice.id && xypad.yDevice.id ){\n  setVar(\"xy_1\",\"xDevice\",xypad.xDevice.id)\n  setVar(\"xy_1\",\"yDevice\",xypad.yDevice.id)\n  set(\"lbl_x_param_name\",xypad.xDevice.name)\n  set(\"lbl_y_param_name\",xypad.yDevice.name)\n} else {\n  setVar(\"xy_1\",\"xDevice\",0)\n  setVar(\"xy_1\",\"yDevice\",0)\n  set(\"lbl_x_param_name\",\"\")\n  set(\"lbl_y_param_name\",\"\")\n}\nsetVar(\"button_track_devices\",\"devices\",devices)\n\nlet devs = { \"labels\" : [],\"values\" : [] }\nif ( devices.length > 1 ){\n  devices.map ( (d,index) => {\n    devs.labels.push (d[1].replace('\"','').replace('\"',''))\n    devs.values.push (index)\n  })\n  setVar(\"menu_devices\",\"visible\",true)\n} else {\n  setVar(\"menu_devices\",\"visible\",false)\n}\n// setVar(\"dropdown_devices\",\"options\",devs)\nsetVar(\"menu_devices\",\"options\",devs)\nsetVar(\"menu_devices\",\"color\",getVar(this,\"color\"))\nset(\"current_device_index\",0)"
                   },
                   {
                     "type": "button",
@@ -3635,7 +3635,7 @@
                     "ignoreDefaults": false,
                     "bypass": false,
                     "onCreate": "setVar(this,\"params\",[])\nsetVar(this,\"lastVariation\",1)\nsetVar(this,\"label\",\"Empty\")\nsetVar(this,\"xypad\",{xDevice:{name:'',id:0},yDevice:{name:'',id:0}})",
-                    "onValue": "let index = getProp(this,\"id\").replace('button_','')\nlet target = \"params_\" + index\nlet params = getVar(target,\"params\")\nlet n = 0;\nparams.forEach( (p,i) => {\n  if ( !p[4].includes(\"Device On\") ){\n    n++;\n    set(\"param_lbl_\" + n,p[4].replace(' ','\\n').replace('\"','').replace('\"',''))\n    set(\"fader_param_\" + n,parseFloat(p[5]))\n    setVar(\"fader_param_\" + n,\"range\", {min:parseFloat(p[6]),max:parseFloat(p[7])})\n    setVar(\"fader_param_\" + n,\"device\",parseInt(p[3]))\n  }\n})\n\n//set current track indicator\nset(\"current_track\",index)\n\n\nlet device = \"devices_\" + index\nlet devices = getVar(device,\"devices\")\n\n//set the current device the first of the track\nset(\"current_device\",devices[0][1].replace('\"','').replace('\"',''))\nsetVar(\"current_device\",\"color\",getVar(this,\"color\"))\n\n\nsetVar(\"current_track\",\"color\",getVar(this,\"color\"))\n//set variation_count to device_variations \nset(\"device_variations\",parseInt(devices[0][2]))\n//set device id to current_variation\nsetVar(\"current_variation\",\"device\",parseInt(devices[0][4]))\n//get the last variation selected for the current device\nset(\"current_variation\",getVar(this,\"lastVariation\"))\n\nsetVar(\"button_new_variation\",\"device\",parseInt(devices[0][4]))\n\n//Assign device id to randomize button\nsetVar(\"button_randomize\",\"device\",parseInt(devices[0][4]))\n\nlet xypad = getVar(this,\"xypad\")\nif ( xypad.xDevice.id && xypad.yDevice.id ){\n  setVar(\"xy_1\",\"xDevice\",xypad.xDevice.id)\n  setVar(\"xy_1\",\"yDevice\",xypad.yDevice.id)\n  set(\"lbl_x_param_name\",xypad.xDevice.name)\n  set(\"lbl_y_param_name\",xypad.yDevice.name)\n} else {\n  setVar(\"xy_1\",\"xDevice\",0)\n  setVar(\"xy_1\",\"yDevice\",0)\n  set(\"lbl_x_param_name\",\"\")\n  set(\"lbl_y_param_name\",\"\")\n}\n"
+                    "onValue": "let index = getProp(this,\"id\").replace('button_','')\nlet target = \"params_\" + index\nlet params = getVar(target,\"params\")\nlet visible_macros = getVar(\"devices_\" + index,\"devices\")[0][4]\nlet n = 0;\nparams.forEach( (p,i) => {\n  if ( !p[4].includes(\"Device On\") ){\n    if ( n <= visible_macros ){\n      n++;\n      set(\"param_lbl_\" + n,p[4].replace(' ','\\n').replace('\"','').replace('\"',''))\n      set(\"fader_param_\" + n,parseFloat(p[5]))\n      setVar(\"fader_param_\" + n,\"range\", {min:parseFloat(p[6]),max:parseFloat(p[7])})\n      setVar(\"fader_param_\" + n,\"device\",parseInt(p[3]))\n    }\n  }\n})\n\n//set current track indicator\nset(\"current_track\",index)\n\n\nlet device = \"devices_\" + index\nlet devices = getVar(device,\"devices\")\n\n//set the current device the first of the track\nset(\"current_device\",devices[0][1].replace('\"','').replace('\"',''))\nsetVar(\"current_device\",\"color\",getVar(this,\"color\"))\n\n\nsetVar(\"current_track\",\"color\",getVar(this,\"color\"))\n//set variation_count to device_variations \nset(\"device_variations\",parseInt(devices[0][2]))\n//set device id to current_variation\nsetVar(\"current_variation\",\"device\",parseInt(devices[0][4]))\n//get the last variation selected for the current device\nset(\"current_variation\",getVar(this,\"lastVariation\"))\n\n//Assign device id to randomize button\nsetVar(\"button_randomize\",\"device\",parseInt(devices[0][4]))\n\nlet xypad = getVar(this,\"xypad\")\nif ( xypad.xDevice.id && xypad.yDevice.id ){\n  setVar(\"xy_1\",\"xDevice\",xypad.xDevice.id)\n  setVar(\"xy_1\",\"yDevice\",xypad.yDevice.id)\n  set(\"lbl_x_param_name\",xypad.xDevice.name)\n  set(\"lbl_y_param_name\",xypad.yDevice.name)\n} else {\n  setVar(\"xy_1\",\"xDevice\",0)\n  setVar(\"xy_1\",\"yDevice\",0)\n  set(\"lbl_x_param_name\",\"\")\n  set(\"lbl_y_param_name\",\"\")\n}\nsetVar(\"button_track_devices\",\"devices\",devices)\n\nlet devs = { \"labels\" : [],\"values\" : [] }\nif ( devices.length > 1 ){\n  devices.map ( (d,index) => {\n    devs.labels.push (d[1].replace('\"','').replace('\"',''))\n    devs.values.push (index)\n  })\n  setVar(\"menu_devices\",\"visible\",true)\n} else {\n  setVar(\"menu_devices\",\"visible\",false)\n}\n// setVar(\"dropdown_devices\",\"options\",devs)\nsetVar(\"menu_devices\",\"options\",devs)\nsetVar(\"menu_devices\",\"color\",getVar(this,\"color\"))\nset(\"current_device_index\",0)"
                   },
                   {
                     "type": "button",
@@ -3681,7 +3681,7 @@
                     "ignoreDefaults": false,
                     "bypass": false,
                     "onCreate": "setVar(this,\"params\",[])\nsetVar(this,\"lastVariation\",1)\nsetVar(this,\"label\",\"Empty\")\nsetVar(this,\"xypad\",{xDevice:{name:'',id:0},yDevice:{name:'',id:0}})",
-                    "onValue": "let index = getProp(this,\"id\").replace('button_','')\nlet target = \"params_\" + index\nlet params = getVar(target,\"params\")\nlet n = 0;\nparams.forEach( (p,i) => {\n  if ( !p[4].includes(\"Device On\") ){\n    n++;\n    set(\"param_lbl_\" + n,p[4].replace(' ','\\n').replace('\"','').replace('\"',''))\n    set(\"fader_param_\" + n,parseFloat(p[5]))\n    setVar(\"fader_param_\" + n,\"range\", {min:parseFloat(p[6]),max:parseFloat(p[7])})\n    setVar(\"fader_param_\" + n,\"device\",parseInt(p[3]))\n  }\n})\n\n//set current track indicator\nset(\"current_track\",index)\n\n\nlet device = \"devices_\" + index\nlet devices = getVar(device,\"devices\")\n\n//set the current device the first of the track\nset(\"current_device\",devices[0][1].replace('\"','').replace('\"',''))\nsetVar(\"current_device\",\"color\",getVar(this,\"color\"))\n\n\nsetVar(\"current_track\",\"color\",getVar(this,\"color\"))\n//set variation_count to device_variations \nset(\"device_variations\",parseInt(devices[0][2]))\n//set device id to current_variation\nsetVar(\"current_variation\",\"device\",parseInt(devices[0][4]))\n//get the last variation selected for the current device\nset(\"current_variation\",getVar(this,\"lastVariation\"))\n\nsetVar(\"button_new_variation\",\"device\",parseInt(devices[0][4]))\n\n//Assign device id to randomize button\nsetVar(\"button_randomize\",\"device\",parseInt(devices[0][4]))\n\nlet xypad = getVar(this,\"xypad\")\nif ( xypad.xDevice.id && xypad.yDevice.id ){\n  setVar(\"xy_1\",\"xDevice\",xypad.xDevice.id)\n  setVar(\"xy_1\",\"yDevice\",xypad.yDevice.id)\n  set(\"lbl_x_param_name\",xypad.xDevice.name)\n  set(\"lbl_y_param_name\",xypad.yDevice.name)\n} else {\n  setVar(\"xy_1\",\"xDevice\",0)\n  setVar(\"xy_1\",\"yDevice\",0)\n  set(\"lbl_x_param_name\",\"\")\n  set(\"lbl_y_param_name\",\"\")\n}\n"
+                    "onValue": "let index = getProp(this,\"id\").replace('button_','')\nlet target = \"params_\" + index\nlet params = getVar(target,\"params\")\nlet visible_macros = getVar(\"devices_\" + index,\"devices\")[0][4]\nlet n = 0;\nparams.forEach( (p,i) => {\n  if ( !p[4].includes(\"Device On\") ){\n    if ( n <= visible_macros ){\n      n++;\n      set(\"param_lbl_\" + n,p[4].replace(' ','\\n').replace('\"','').replace('\"',''))\n      set(\"fader_param_\" + n,parseFloat(p[5]))\n      setVar(\"fader_param_\" + n,\"range\", {min:parseFloat(p[6]),max:parseFloat(p[7])})\n      setVar(\"fader_param_\" + n,\"device\",parseInt(p[3]))\n    }\n  }\n})\n\n//set current track indicator\nset(\"current_track\",index)\n\n\nlet device = \"devices_\" + index\nlet devices = getVar(device,\"devices\")\n\n//set the current device the first of the track\nset(\"current_device\",devices[0][1].replace('\"','').replace('\"',''))\nsetVar(\"current_device\",\"color\",getVar(this,\"color\"))\n\n\nsetVar(\"current_track\",\"color\",getVar(this,\"color\"))\n//set variation_count to device_variations \nset(\"device_variations\",parseInt(devices[0][2]))\n//set device id to current_variation\nsetVar(\"current_variation\",\"device\",parseInt(devices[0][4]))\n//get the last variation selected for the current device\nset(\"current_variation\",getVar(this,\"lastVariation\"))\n\n//Assign device id to randomize button\nsetVar(\"button_randomize\",\"device\",parseInt(devices[0][4]))\n\nlet xypad = getVar(this,\"xypad\")\nif ( xypad.xDevice.id && xypad.yDevice.id ){\n  setVar(\"xy_1\",\"xDevice\",xypad.xDevice.id)\n  setVar(\"xy_1\",\"yDevice\",xypad.yDevice.id)\n  set(\"lbl_x_param_name\",xypad.xDevice.name)\n  set(\"lbl_y_param_name\",xypad.yDevice.name)\n} else {\n  setVar(\"xy_1\",\"xDevice\",0)\n  setVar(\"xy_1\",\"yDevice\",0)\n  set(\"lbl_x_param_name\",\"\")\n  set(\"lbl_y_param_name\",\"\")\n}\nsetVar(\"button_track_devices\",\"devices\",devices)\n\nlet devs = { \"labels\" : [],\"values\" : [] }\nif ( devices.length > 1 ){\n  devices.map ( (d,index) => {\n    devs.labels.push (d[1].replace('\"','').replace('\"',''))\n    devs.values.push (index)\n  })\n  setVar(\"menu_devices\",\"visible\",true)\n} else {\n  setVar(\"menu_devices\",\"visible\",false)\n}\n// setVar(\"dropdown_devices\",\"options\",devs)\nsetVar(\"menu_devices\",\"options\",devs)\nsetVar(\"menu_devices\",\"color\",getVar(this,\"color\"))\nset(\"current_device_index\",0)"
                   },
                   {
                     "type": "button",
@@ -3727,7 +3727,7 @@
                     "ignoreDefaults": false,
                     "bypass": false,
                     "onCreate": "setVar(this,\"params\",[])\nsetVar(this,\"lastVariation\",1)\nsetVar(this,\"label\",\"Empty\")\nsetVar(this,\"xypad\",{xDevice:{name:'',id:0},yDevice:{name:'',id:0}})",
-                    "onValue": "let index = getProp(this,\"id\").replace('button_','')\nlet target = \"params_\" + index\nlet params = getVar(target,\"params\")\nlet n = 0;\nparams.forEach( (p,i) => {\n  if ( !p[4].includes(\"Device On\") ){\n    n++;\n    set(\"param_lbl_\" + n,p[4].replace(' ','\\n').replace('\"','').replace('\"',''))\n    set(\"fader_param_\" + n,parseFloat(p[5]))\n    setVar(\"fader_param_\" + n,\"range\", {min:parseFloat(p[6]),max:parseFloat(p[7])})\n    setVar(\"fader_param_\" + n,\"device\",parseInt(p[3]))\n  }\n})\n\n//set current track indicator\nset(\"current_track\",index)\n\n\nlet device = \"devices_\" + index\nlet devices = getVar(device,\"devices\")\n\n//set the current device the first of the track\nset(\"current_device\",devices[0][1].replace('\"','').replace('\"',''))\nsetVar(\"current_device\",\"color\",getVar(this,\"color\"))\n\n\nsetVar(\"current_track\",\"color\",getVar(this,\"color\"))\n//set variation_count to device_variations \nset(\"device_variations\",parseInt(devices[0][2]))\n//set device id to current_variation\nsetVar(\"current_variation\",\"device\",parseInt(devices[0][4]))\n//get the last variation selected for the current device\nset(\"current_variation\",getVar(this,\"lastVariation\"))\n\nsetVar(\"button_new_variation\",\"device\",parseInt(devices[0][4]))\n\n//Assign device id to randomize button\nsetVar(\"button_randomize\",\"device\",parseInt(devices[0][4]))\n\nlet xypad = getVar(this,\"xypad\")\nif ( xypad.xDevice.id && xypad.yDevice.id ){\n  setVar(\"xy_1\",\"xDevice\",xypad.xDevice.id)\n  setVar(\"xy_1\",\"yDevice\",xypad.yDevice.id)\n  set(\"lbl_x_param_name\",xypad.xDevice.name)\n  set(\"lbl_y_param_name\",xypad.yDevice.name)\n} else {\n  setVar(\"xy_1\",\"xDevice\",0)\n  setVar(\"xy_1\",\"yDevice\",0)\n  set(\"lbl_x_param_name\",\"\")\n  set(\"lbl_y_param_name\",\"\")\n}\n"
+                    "onValue": "let index = getProp(this,\"id\").replace('button_','')\nlet target = \"params_\" + index\nlet params = getVar(target,\"params\")\nlet visible_macros = getVar(\"devices_\" + index,\"devices\")[0][4]\nlet n = 0;\nparams.forEach( (p,i) => {\n  if ( !p[4].includes(\"Device On\") ){\n    if ( n <= visible_macros ){\n      n++;\n      set(\"param_lbl_\" + n,p[4].replace(' ','\\n').replace('\"','').replace('\"',''))\n      set(\"fader_param_\" + n,parseFloat(p[5]))\n      setVar(\"fader_param_\" + n,\"range\", {min:parseFloat(p[6]),max:parseFloat(p[7])})\n      setVar(\"fader_param_\" + n,\"device\",parseInt(p[3]))\n    }\n  }\n})\n\n//set current track indicator\nset(\"current_track\",index)\n\n\nlet device = \"devices_\" + index\nlet devices = getVar(device,\"devices\")\n\n//set the current device the first of the track\nset(\"current_device\",devices[0][1].replace('\"','').replace('\"',''))\nsetVar(\"current_device\",\"color\",getVar(this,\"color\"))\n\n\nsetVar(\"current_track\",\"color\",getVar(this,\"color\"))\n//set variation_count to device_variations \nset(\"device_variations\",parseInt(devices[0][2]))\n//set device id to current_variation\nsetVar(\"current_variation\",\"device\",parseInt(devices[0][4]))\n//get the last variation selected for the current device\nset(\"current_variation\",getVar(this,\"lastVariation\"))\n\n//Assign device id to randomize button\nsetVar(\"button_randomize\",\"device\",parseInt(devices[0][4]))\n\nlet xypad = getVar(this,\"xypad\")\nif ( xypad.xDevice.id && xypad.yDevice.id ){\n  setVar(\"xy_1\",\"xDevice\",xypad.xDevice.id)\n  setVar(\"xy_1\",\"yDevice\",xypad.yDevice.id)\n  set(\"lbl_x_param_name\",xypad.xDevice.name)\n  set(\"lbl_y_param_name\",xypad.yDevice.name)\n} else {\n  setVar(\"xy_1\",\"xDevice\",0)\n  setVar(\"xy_1\",\"yDevice\",0)\n  set(\"lbl_x_param_name\",\"\")\n  set(\"lbl_y_param_name\",\"\")\n}\nsetVar(\"button_track_devices\",\"devices\",devices)\n\nlet devs = { \"labels\" : [],\"values\" : [] }\nif ( devices.length > 1 ){\n  devices.map ( (d,index) => {\n    devs.labels.push (d[1].replace('\"','').replace('\"',''))\n    devs.values.push (index)\n  })\n  setVar(\"menu_devices\",\"visible\",true)\n} else {\n  setVar(\"menu_devices\",\"visible\",false)\n}\n// setVar(\"dropdown_devices\",\"options\",devs)\nsetVar(\"menu_devices\",\"options\",devs)\nsetVar(\"menu_devices\",\"color\",getVar(this,\"color\"))\nset(\"current_device_index\",0)"
                   },
                   {
                     "type": "button",
@@ -3773,7 +3773,7 @@
                     "ignoreDefaults": false,
                     "bypass": false,
                     "onCreate": "setVar(this,\"params\",[])\nsetVar(this,\"lastVariation\",1)\nsetVar(this,\"label\",\"Empty\")\nsetVar(this,\"xypad\",{xDevice:{name:'',id:0},yDevice:{name:'',id:0}})",
-                    "onValue": "let index = getProp(this,\"id\").replace('button_','')\nlet target = \"params_\" + index\nlet params = getVar(target,\"params\")\nlet n = 0;\nparams.forEach( (p,i) => {\n  if ( !p[4].includes(\"Device On\") ){\n    n++;\n    set(\"param_lbl_\" + n,p[4].replace(' ','\\n').replace('\"','').replace('\"',''))\n    set(\"fader_param_\" + n,parseFloat(p[5]))\n    setVar(\"fader_param_\" + n,\"range\", {min:parseFloat(p[6]),max:parseFloat(p[7])})\n    setVar(\"fader_param_\" + n,\"device\",parseInt(p[3]))\n  }\n})\n\n//set current track indicator\nset(\"current_track\",index)\n\n\nlet device = \"devices_\" + index\nlet devices = getVar(device,\"devices\")\n\n//set the current device the first of the track\nset(\"current_device\",devices[0][1].replace('\"','').replace('\"',''))\nsetVar(\"current_device\",\"color\",getVar(this,\"color\"))\n\n\nsetVar(\"current_track\",\"color\",getVar(this,\"color\"))\n//set variation_count to device_variations \nset(\"device_variations\",parseInt(devices[0][2]))\n//set device id to current_variation\nsetVar(\"current_variation\",\"device\",parseInt(devices[0][4]))\n//get the last variation selected for the current device\nset(\"current_variation\",getVar(this,\"lastVariation\"))\n\nsetVar(\"button_new_variation\",\"device\",parseInt(devices[0][4]))\n\n//Assign device id to randomize button\nsetVar(\"button_randomize\",\"device\",parseInt(devices[0][4]))\n\nlet xypad = getVar(this,\"xypad\")\nif ( xypad.xDevice.id && xypad.yDevice.id ){\n  setVar(\"xy_1\",\"xDevice\",xypad.xDevice.id)\n  setVar(\"xy_1\",\"yDevice\",xypad.yDevice.id)\n  set(\"lbl_x_param_name\",xypad.xDevice.name)\n  set(\"lbl_y_param_name\",xypad.yDevice.name)\n} else {\n  setVar(\"xy_1\",\"xDevice\",0)\n  setVar(\"xy_1\",\"yDevice\",0)\n  set(\"lbl_x_param_name\",\"\")\n  set(\"lbl_y_param_name\",\"\")\n}\n"
+                    "onValue": "let index = getProp(this,\"id\").replace('button_','')\nlet target = \"params_\" + index\nlet params = getVar(target,\"params\")\nlet visible_macros = getVar(\"devices_\" + index,\"devices\")[0][4]\nlet n = 0;\nparams.forEach( (p,i) => {\n  if ( !p[4].includes(\"Device On\") ){\n    if ( n <= visible_macros ){\n      n++;\n      set(\"param_lbl_\" + n,p[4].replace(' ','\\n').replace('\"','').replace('\"',''))\n      set(\"fader_param_\" + n,parseFloat(p[5]))\n      setVar(\"fader_param_\" + n,\"range\", {min:parseFloat(p[6]),max:parseFloat(p[7])})\n      setVar(\"fader_param_\" + n,\"device\",parseInt(p[3]))\n    }\n  }\n})\n\n//set current track indicator\nset(\"current_track\",index)\n\n\nlet device = \"devices_\" + index\nlet devices = getVar(device,\"devices\")\n\n//set the current device the first of the track\nset(\"current_device\",devices[0][1].replace('\"','').replace('\"',''))\nsetVar(\"current_device\",\"color\",getVar(this,\"color\"))\n\n\nsetVar(\"current_track\",\"color\",getVar(this,\"color\"))\n//set variation_count to device_variations \nset(\"device_variations\",parseInt(devices[0][2]))\n//set device id to current_variation\nsetVar(\"current_variation\",\"device\",parseInt(devices[0][4]))\n//get the last variation selected for the current device\nset(\"current_variation\",getVar(this,\"lastVariation\"))\n\n//Assign device id to randomize button\nsetVar(\"button_randomize\",\"device\",parseInt(devices[0][4]))\n\nlet xypad = getVar(this,\"xypad\")\nif ( xypad.xDevice.id && xypad.yDevice.id ){\n  setVar(\"xy_1\",\"xDevice\",xypad.xDevice.id)\n  setVar(\"xy_1\",\"yDevice\",xypad.yDevice.id)\n  set(\"lbl_x_param_name\",xypad.xDevice.name)\n  set(\"lbl_y_param_name\",xypad.yDevice.name)\n} else {\n  setVar(\"xy_1\",\"xDevice\",0)\n  setVar(\"xy_1\",\"yDevice\",0)\n  set(\"lbl_x_param_name\",\"\")\n  set(\"lbl_y_param_name\",\"\")\n}\nsetVar(\"button_track_devices\",\"devices\",devices)\n\nlet devs = { \"labels\" : [],\"values\" : [] }\nif ( devices.length > 1 ){\n  devices.map ( (d,index) => {\n    devs.labels.push (d[1].replace('\"','').replace('\"',''))\n    devs.values.push (index)\n  })\n  setVar(\"menu_devices\",\"visible\",true)\n} else {\n  setVar(\"menu_devices\",\"visible\",false)\n}\n// setVar(\"dropdown_devices\",\"options\",devs)\nsetVar(\"menu_devices\",\"options\",devs)\nsetVar(\"menu_devices\",\"color\",getVar(this,\"color\"))\nset(\"current_device_index\",0)"
                   },
                   {
                     "type": "fader",
@@ -4392,7 +4392,7 @@
             "ignoreDefaults": false,
             "bypass": false,
             "onCreate": "",
-            "onValue": "console.log ( value )\n// setVar(this,\"device\",value[1])\n// set(this,value[0])",
+            "onValue": "set(\"modal_loading\",0)\n// setVar(this,\"device\",value[1])\n// set(this,value[0])",
             "onTouch": ""
           },
           {
@@ -4497,16 +4497,16 @@
         "onValue": ""
       },
       {
-        "type": "modal",
-        "top": 320,
-        "left": 760,
+        "type": "button",
+        "top": 375,
+        "left": 730,
         "lock": false,
-        "id": "button_track_devices",
+        "id": "button_track_device_params",
         "visible": true,
         "interaction": true,
         "comments": "",
-        "width": 170,
-        "height": 50,
+        "width": 20,
+        "height": 20,
         "expand": false,
         "colorText": "auto",
         "colorWidget": "#c6a006",
@@ -4519,40 +4519,28 @@
         "borderRadius": 6,
         "padding": "auto",
         "css": "",
-        "label": "Devices",
+        "label": false,
         "doubleTap": false,
         "value": "",
         "default": "",
         "linkId": "",
-        "address": "auto",
-        "preArgs": "",
+        "address": "/send/track/device/params",
+        "preArgs": "[\n  @{current_track},\n  @{current_device_index}\n]",
         "typeTags": "",
         "decimals": 2,
         "target": "",
         "ignoreDefaults": false,
         "bypass": false,
-        "onCreate": "",
-        "onValue": "",
-        "popupWidth": "80%",
-        "popupHeight": "80%",
-        "popupLeft": "auto",
-        "popupTop": "auto",
-        "relative": false,
-        "ignoreTabs": false,
-        "colorBg": "auto",
-        "layout": "default",
-        "justify": "start",
-        "gridTemplate": "",
-        "contain": true,
-        "scroll": true,
-        "innerPadding": true,
-        "popupLabel": "auto",
-        "popupPadding": "auto",
-        "variables": "@{parent.variables}",
-        "traversing": false,
-        "onTouch": "",
-        "widgets": [],
-        "tabs": []
+        "onCreate": "setVar(this,\"devices\")",
+        "onValue": "let track = get(\"current_track\")\nlet deviceIndex = get(\"current_device_index\")\n",
+        "html": "",
+        "colorTextOn": "auto",
+        "vertical": false,
+        "wrap": false,
+        "on": 1,
+        "off": 0,
+        "mode": "tap",
+        "decoupled": false
       },
       {
         "type": "modal",
@@ -5146,12 +5134,12 @@
       },
       {
         "type": "panel",
-        "top": 740,
+        "top": 780,
         "left": 0,
         "lock": false,
         "id": "panel_incoming_processor",
-        "visible": false,
-        "interaction": true,
+        "visible": true,
+        "interaction": false,
         "comments": "",
         "width": 920,
         "height": 210,
@@ -5227,8 +5215,8 @@
             "decimals": 2,
             "target": "",
             "bypass": false,
-            "onCreate": "setVar(this,\"params\",[])",
-            "onValue": "let params = getVar(this,\"params\")\nparams.push ( value )\nsetVar(this,\"params\",params)\n"
+            "onCreate": "setVar(this,\"params\",[])\n// setVar(this,\"data\",{})",
+            "onValue": "let params = getVar(this,\"params\")\nparams.push ( value )\nsetVar(this,\"params\",params)\n// let data = getVar(this,\"data\")\n// data[value[4].replace('\"','').replace('\"','')] = value\n// setVar(this,\"data\",data)\n"
           },
           {
             "type": "text",
@@ -6549,11 +6537,241 @@
         "ignoreDefaults": false,
         "bypass": false,
         "onCreate": "",
-        "onValue": "\nfor ( var i = 1; i < 17 ; i++ ){\n  let target = \"fader_param_\" + i\n  let id = getVar(target,\"device\")\n  if ( parseInt(id) == parseInt(value[0]) ){\n    set(target,parseFloat(value[1]))\n  }\n}\n",
+        "onValue": "\nfor ( var i = 1; i < 17 ; i++ ){\n  let target = \"fader_param_\" + i\n  let id = getVar(target,\"device\")\n  if ( parseInt(id) == parseInt(value[0]) ){\n    set(target,parseFloat(value[1]))\n  }\n}\nconsole.log ( value )",
         "onKeyboard": "",
         "keyBinding": "",
         "keyRepeat": true,
         "keyType": "keydown"
+      },
+      {
+        "type": "menu",
+        "top": 320,
+        "left": 760,
+        "lock": false,
+        "id": "menu_devices",
+        "visible": "VAR{visible}",
+        "interaction": true,
+        "comments": "",
+        "width": 170,
+        "height": 50,
+        "expand": false,
+        "size": 200,
+        "ignoreTabs": false,
+        "colorText": "auto",
+        "colorWidget": "VAR{color}",
+        "colorStroke": "auto",
+        "colorFill": "auto",
+        "alphaStroke": "auto",
+        "alphaFillOff": "auto",
+        "alphaFillOn": "auto",
+        "lineWidth": "auto",
+        "borderRadius": 8,
+        "padding": "auto",
+        "html": "",
+        "css": "font-size:14px;",
+        "label": "Device",
+        "icon": "true",
+        "textAlign": "center",
+        "menuAlignV": "center",
+        "menuAlignH": "center",
+        "layout": "circular",
+        "gridTemplate": "",
+        "mode": "default",
+        "values": "VAR{options}",
+        "weights": "",
+        "value": "",
+        "default": "",
+        "linkId": "",
+        "address": "auto",
+        "preArgs": "",
+        "typeTags": "",
+        "decimals": 2,
+        "target": "",
+        "ignoreDefaults": false,
+        "bypass": false,
+        "onCreate": "setVar(this,\"visible\",true)",
+        "onValue": "set(\"current_device\",getVar(this,\"options\").labels[value])\nset(\"current_device_index\",value)\nlet track = get(\"current_track\")\nlet params = getVar(\"params_\" + track,\"params\")\nlet visible_macros = getVar(\"devices_\" + track,\"devices\")[value][4]\nlet n = 0\nparams.forEach( (p,i) => {\n  if ( p[0] === value ){\n    if ( !p[4].includes(\"Device On\") ){\n      n++\n      setVar(\"fader_param_\" + n,\"range\", {min:parseFloat(p[6]),max:parseFloat(p[7])})\n      setVar(\"fader_param_\" + n,\"device\",parseInt(p[3]))\n      set(\"param_lbl_\" + n,p[4].replace(' ','\\n').replace('\"','').replace('\"',''))\n      // send(\"/send/refresh/param/\" + parseInt(p[3]),1)\n    }\n  }\n})\nset(\"button_track_device_params\",1)\n// send(\"/send/track/device/params/\" + track-1,get(\"current_device_index\"))"
+      },
+      {
+        "type": "text",
+        "top": 730,
+        "left": 710,
+        "lock": false,
+        "id": "current_device_index",
+        "visible": true,
+        "interaction": false,
+        "comments": "",
+        "width": 40,
+        "height": 30,
+        "expand": false,
+        "colorText": "auto",
+        "colorWidget": "auto",
+        "colorStroke": "auto",
+        "colorFill": "auto",
+        "alphaStroke": "auto",
+        "alphaFillOff": "auto",
+        "alphaFillOn": "auto",
+        "lineWidth": "auto",
+        "borderRadius": "auto",
+        "padding": "auto",
+        "html": "",
+        "css": "",
+        "vertical": false,
+        "wrap": false,
+        "align": "center",
+        "value": 0,
+        "default": 0,
+        "linkId": "",
+        "address": "auto",
+        "preArgs": "",
+        "decimals": 2,
+        "target": "",
+        "bypass": false,
+        "onCreate": "",
+        "onValue": ""
+      },
+      {
+        "type": "modal",
+        "top": 740,
+        "left": 400,
+        "lock": false,
+        "id": "modal_loading",
+        "visible": true,
+        "interaction": false,
+        "comments": "",
+        "width": "auto",
+        "height": "auto",
+        "expand": false,
+        "popupWidth": 800,
+        "popupHeight": "40%",
+        "popupLeft": "auto",
+        "popupTop": "auto",
+        "relative": false,
+        "ignoreTabs": false,
+        "colorText": "auto",
+        "colorWidget": "auto",
+        "colorStroke": "auto",
+        "colorFill": "auto",
+        "alphaStroke": "auto",
+        "alphaFillOff": "auto",
+        "alphaFillOn": "auto",
+        "lineWidth": "auto",
+        "borderRadius": "auto",
+        "padding": "auto",
+        "css": "",
+        "colorBg": "auto",
+        "layout": "default",
+        "justify": "start",
+        "gridTemplate": "",
+        "contain": true,
+        "scroll": true,
+        "innerPadding": true,
+        "label": "Loading data",
+        "popupLabel": "auto",
+        "popupPadding": "auto",
+        "variables": "@{parent.variables}",
+        "traversing": false,
+        "doubleTap": false,
+        "value": "",
+        "default": "",
+        "linkId": "",
+        "address": "auto",
+        "preArgs": "",
+        "typeTags": "",
+        "decimals": 2,
+        "target": "",
+        "ignoreDefaults": false,
+        "bypass": false,
+        "onCreate": "",
+        "onValue": "",
+        "onTouch": "",
+        "widgets": [
+          {
+            "type": "text",
+            "top": 50,
+            "left": 180,
+            "lock": false,
+            "id": "loading_data_text",
+            "visible": true,
+            "interaction": false,
+            "comments": "",
+            "width": 440,
+            "height": 140,
+            "expand": false,
+            "colorText": "auto",
+            "colorWidget": "#3d96ef",
+            "colorStroke": "auto",
+            "colorFill": "auto",
+            "alphaStroke": "auto",
+            "alphaFillOff": 1,
+            "alphaFillOn": "auto",
+            "lineWidth": "auto",
+            "borderRadius": 10,
+            "padding": "auto",
+            "html": "",
+            "css": "font-size:20px;",
+            "vertical": false,
+            "wrap": false,
+            "align": "center",
+            "value": "Loading data please wait ...",
+            "default": "",
+            "linkId": "",
+            "address": "auto",
+            "preArgs": "",
+            "decimals": 2,
+            "target": "",
+            "bypass": false,
+            "onCreate": "",
+            "onValue": ""
+          }
+        ],
+        "tabs": []
+      },
+      {
+        "type": "button",
+        "top": 390,
+        "left": 1000,
+        "lock": false,
+        "id": "button_send_variation",
+        "visible": true,
+        "interaction": true,
+        "comments": "",
+        "width": 20,
+        "height": 20,
+        "expand": false,
+        "colorText": "auto",
+        "colorWidget": "#c6a006",
+        "colorStroke": "auto",
+        "colorFill": "auto",
+        "alphaStroke": "auto",
+        "alphaFillOff": "auto",
+        "alphaFillOn": "auto",
+        "lineWidth": "auto",
+        "borderRadius": 6,
+        "padding": "auto",
+        "css": "",
+        "label": false,
+        "doubleTap": false,
+        "value": "",
+        "default": "",
+        "linkId": "",
+        "address": "/send/variation/VAR{device}",
+        "preArgs": "@{current_variation}",
+        "typeTags": "",
+        "decimals": 2,
+        "target": "",
+        "ignoreDefaults": false,
+        "bypass": false,
+        "onCreate": "setVar(this,\"devices\")",
+        "onValue": "let track = get(\"current_track\")\nlet deviceIndex = get(\"current_device_index\")\n",
+        "html": "",
+        "colorTextOn": "auto",
+        "vertical": false,
+        "wrap": false,
+        "on": 1,
+        "off": 0,
+        "mode": "tap",
+        "decoupled": false
       }
     ],
     "tabs": []

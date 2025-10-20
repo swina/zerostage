@@ -71,6 +71,12 @@ function get_session() {
         var volumeDevice = new LiveAPI(trackPath + " mixer_device volume");
         var volumeId = safeGet(volumeDevice,"id")
         var volume = safeGetString(volumeDevice,"value")
+        var panDevice = new LiveAPI(trackPath + " mixer_device panning" )
+        var pan = safeGetString(panDevice,"value")
+        var soloDevice = new LiveAPI(trackPath + " mixer_device solo")
+        var solo = safeGetString(soloDevice,"value")
+        var muteDevice = new LiveAPI(trackPath + " mixer_device mute")
+        var mute = safeGetString(muteDevice,"value")
         // post ( volumeId , volume )
         // var mixerDevice = {
         //     volume: volume,
@@ -80,8 +86,33 @@ function get_session() {
         //     crossfade: safeGetString(trackApi, "mixer_device crossfade_assign"),
         // };
         var trackId = safeGetString(trackApi,"id")
-        sendOSC("/track", [t, trackName, colorToHex(trackColor), trackId, volumeDevice.id , volume, mixerDevice.id ]);
-
+        sendOSC("/track", [
+            t, 
+            trackName, 
+            colorToHex(trackColor), 
+            trackId, 
+            volumeDevice.id , 
+            volume, 
+            mixerDevice.id , 
+            panDevice.id , 
+            pan , 
+            soloDevice.id , 
+            solo , 
+            muteDevice.id, 
+            mute
+        ]);
+        sendOSC ("/tt" , [{
+            "track" : t,
+            "trackName" : trackName,
+            "color" : colorToHex(trackColor),
+            "trackId" : trackId,
+            "volumeId" : volumeDevice.id,
+            "volume": volume,
+            "mixerId" : mixerDevice.id,
+            "panId" : panDevice.id,
+            "pan" : pan,
+            "soloId" : soloDevice.id
+        }])
         var deviceCount = trackApi.getcount("devices");
         for (var d = 0; d < deviceCount; d++) {
             var devPath = trackPath + " devices " + d;

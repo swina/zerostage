@@ -45,7 +45,7 @@ module.exports = {
         
         if ( address.includes("/track/device/param/") ){
             let addr = address.split('/')
-            let device = {
+            let device = [{
                 tr: addr[4],    //track no
                 nr: args[0].value, //device no
                 id: args[1].value, //device id
@@ -54,10 +54,11 @@ module.exports = {
                 value: args[4].value,
                 min: args[5].value,
                 max: args[6].value
-            }
-            if ( args[0].value == 0 ){
+            }]
+            // args = device 
+            // if ( args[0].value == 0 ){
                 return { address, args, host, port }
-            }
+            // }
             // console.log ( address, args )
         }
         
@@ -77,12 +78,15 @@ module.exports = {
     oscOutFilter:function(data){
         // Filter outgoing osc messages
         var {address, args, host, port, clientId} = data
-        if ( address === '/reload' ){
+        console.log ( "ADDRESS => " , address , args )
+        if ( address === "/reload" ){
             return { address, args, host, port }
         }
-        if ( address.includes('/send/param') ){
+
+        if ( address.includes("/send/param") ){
             return { address, args, host, port }
         }
+        
         if ( address.includes('/send/variation') ){
             return { address, args, host, port }
         }
@@ -94,10 +98,16 @@ module.exports = {
         if ( address.includes('/send/refresh/param/') ){
             return { address, args, host,  port }
         }
+        
         if ( address.includes("/randomize/") ){
+            
             return { address, args, host, port }
         }
-        
+
+        if ( address == "/send/track/device/params" ){
+            args[0].value = parseInt(args[0].value)-1
+            return { address, args, host, port }
+        }
     },
 
     unload: function(){

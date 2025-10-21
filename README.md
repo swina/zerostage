@@ -50,6 +50,15 @@ Using the web technologies you can have a touch controller with no cost. Compati
     - Port (send) - corresponds to osc-port on OSC
     - Port (receive)
 
+#### LOCAL MACHINE
+If you are using on a local machine set as follows:
+
+- Host IP: 192.168.1.1 or 127.0.0.0
+
+***You can leave the default ports.***
+
+
+
 ![zerostage AbletonLive](https://res.cloudinary.com/moodgiver/image/upload/v1760460377/ZerostagEM4l_nbvu3r.png)
 
 Copy `sessionData.js` in the same folder of `ZeroStage-01.amxd` file
@@ -65,6 +74,17 @@ Copy `sessionData.js` in the same folder of `ZeroStage-01.amxd` file
 ***Read the Open Stage Control documentation on how to setup your server***
 
 - Open your browser at http://localhost:8080 and bum your controller is live and connected to your Ableton session.
+
+### LOCAL MACHINE
+
+** If you are using the same machine running Ableton and test only from the local machine **
+
+- send : 127.0.0.1:5091
+
+
+***You will not be able to test with a different device using the local machine configuration***
+
+
 
 ### Client App Window
 

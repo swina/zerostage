@@ -74,6 +74,9 @@ module.exports = {
             return { address, args, host, port }
         }
 
+        if ( address === '/tt' ){
+            console.log ( "TTTTT=>" , args )
+        }
      },
     oscOutFilter:function(data){
         // Filter outgoing osc messages
@@ -106,6 +109,9 @@ module.exports = {
 
         if ( address == "/send/track/device/params" ){
             args[0].value = parseInt(args[0].value)-1
+            return { address, args, host, port }
+        }
+        if ( address === "/sendstrack" ){
             return { address, args, host, port }
         }
     },

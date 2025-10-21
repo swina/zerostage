@@ -77,6 +77,7 @@ function get_session() {
         var solo = safeGetString(soloDevice,"value")
         var muteDevice = new LiveAPI(trackPath + " mixer_device mute")
         var mute = safeGetString(muteDevice,"value")
+        var extra = getTrackData(t)
         // post ( volumeId , volume )
         // var mixerDevice = {
         //     volume: volume,
@@ -99,9 +100,12 @@ function get_session() {
             soloDevice.id , 
             solo , 
             muteDevice.id, 
-            mute
+            mute,
+            extra.activatorId,
+            extra.activator,
+            extra.sends.join(',')
         ]);
-        sendOSC ("/tt" , [{
+        sendOSC ("/tt" , [{ "data" : {
             "track" : t,
             "trackName" : trackName,
             "color" : colorToHex(trackColor),
@@ -112,7 +116,7 @@ function get_session() {
             "panId" : panDevice.id,
             "pan" : pan,
             "soloId" : soloDevice.id
-        }])
+        }}])
         var deviceCount = trackApi.getcount("devices");
         for (var d = 0; d < deviceCount; d++) {
             var devPath = trackPath + " devices " + d;
@@ -162,6 +166,7 @@ function get_session() {
                  *  pVal = parameter value
                  *  pMin = parameter min value
                  *  pMax = parameter max value
+                 *  paramCount = total parameters
                  */
                 sendOSC(address, args);
             }
@@ -249,6 +254,35 @@ function getParam(d){
     var args = [d,pVal];
     sendOSC(address, args);
     
+}
+
+
+function getTrackData(t){
+    post("Track => " + t)
+    var data = {}
+    var trackPath = "live_set tracks " + t;
+    var trackApi = new LiveAPI(trackPath);
+    var sendsApi = new LiveAPI ( trackPath + " mixer_device")
+    var trackActivator = sendsApi.get("track_activator")
+    var activator = new LiveAPI(trackActivator);
+    data = {
+        activatorId: activator.id,
+        activator: safeGetString(activator,"value"),
+        sends: []
+    }
+    var countSends = sendsApi.getcount("sends")
+    for ( n=0 ; n < countSends ; n++ ){
+        var sApi = new LiveAPI("live_set tracks " + t + " mixer_device sends " + n);
+        var send = safeGetString(sApi,"value")
+        data.sends.push ( send )
+    }
+    return data
+}
+
+function setTrackSend(t,s,value){
+    var trackPath = "live_set tracks " + t;
+    var sendsApi = new LiveAPI ( trackPath + " mixer_device sends " + s)
+    sendsApi.set("value",value) 
 }
 
 // callback from LiveAPI

@@ -81,6 +81,9 @@ You can assign at each XYPad any parameter of the current track device selecting
 
 ## OSC Messages 
 
+Open Stage Control module `zerostage_osc.js` filters incoming/outgoing messages in order to limit the UDP packets that could create traffic congestion with an inevitable increasing of the controls latency.
+
+
 ### IN (from Ableton Live)
 
 ```
@@ -94,7 +97,8 @@ You can assign at each XYPad any parameter of the current track device selecting
 ```
 
 ### OUT (to Ableton Live)
-```/reload
+```
+/reload
 /send/param
 /send/variation
 /send/store/variation

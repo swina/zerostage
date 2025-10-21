@@ -9,23 +9,26 @@
 - Ableton M4L MIDI device to control current session with OSC via browser or Open Stage Control client (locally or remotely)
 - Open Stage Control custom web control surface (json file supplied, but you can customize as per your needs)
 - Remote Controls Up to 16 tracks
+
     - Volume
+    - Master Track Volume
     - Track Name (readonly)
     - Track Color (readonly)
-    - RackDevice Variations
+    - Track Device selection
+    - Track Sends controls (up to 4 per track)
+    - RackDevice Variations (with new variation creation)
     - RackDevice Macros (Up to 16 Parameters)
+    - Randomize current Macros 
     - Configurable Track XY Pad (Macro Mapping)
-- Master Track Volume
 
 ## Description
 
 ZerostagE is a M4L device that works with Open Stage Control (OSC web controller).
 It has been designed in order to control your session during a live performance controlling the relevant controls such:
 - Track volume
-- Track device variations (change the variation of the device if present, or add new)
-- Track device macros (change the macros of the device is present, or randomize)
-
-**Devices selector and Parameters Randomize has to be completed and will be available in the next release**
+- Track device selector
+- Track device variations
+- Track device macros
 
 Using the powerful OSC protocol (Open Sound Control) you can control remotely your Ableton session without the need of tedious MIDI mapping. 
 
@@ -76,10 +79,38 @@ You can assign at each XYPad any parameter of the current track device selecting
 ![Track XYPad](https://res.cloudinary.com/moodgiver/image/upload/v1760460377/ZerostagE-XYPAD_ceqyiy.png)
 
 
+## OSC Messages 
+
+### IN (from Ableton Live)
+
+```
+/track
+/total 
+/track/device
+/track/device/param
+/master/volume
+/receive/refresh/param
+/request/refresh/params
+```
+
+### OUT (to Ableton Live)
+```/reload
+/send/param
+/send/variation
+/send/store/variation
+/send/refresh/param
+/randomize
+/send/track/device/params
+/sendstrack
+```
+
+
+
 ## Content
 
 - `./ZerostagE.json` : Open Stage Control template (client)
 - `./zerostage_osc.js` : Open Stage Control module (OSC Filtering)
 - `./Ableton M4L/ZeroStage-01.amxd`: Ableton Live Standard (minimum) Max4Live device 
 - `./Ableton M4L/sessionData.js` : Max4Live JS file (required)
+- `./ZerostagE-Logo.png`: splash screen image
 - `./README.md`: this file
